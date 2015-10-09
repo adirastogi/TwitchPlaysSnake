@@ -1,0 +1,6 @@
+npm install -g bower                # install bower
+npm install -g grunt-cli            # install grunt
+npm install -g yo                   # install yeoman
+npm install -g generator-webapp     # install yeoman webapp generator
+yo webapp                           # generate webapp with yeoman
+bower install
