@@ -121,6 +121,11 @@ module.exports = function (grunt) {
 
     // Make sure code styles are up to par and there are no obvious mistakes
     eslint: {
+      options: {
+        curly:  [2, 'multi-line'],
+        quotes: [2, 'single', 'avoid-escape'],
+        strict: [2, 'global']
+      },
       target: [
         'Gruntfile.js',
         '<%= config.app %>/scripts/{,*/}*.js',
