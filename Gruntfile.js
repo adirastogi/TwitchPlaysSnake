@@ -21,7 +21,8 @@ module.exports = function (grunt) {
   // Configurable paths
   var config = {
     app: 'app',
-    dist: 'dist'
+    dist: 'dist',
+    test: 'test'
   };
 
   // Define the configuration for all the tasks
@@ -212,6 +213,11 @@ module.exports = function (grunt) {
     wiredep: {
       app: {
         src: ['<%= config.app %>/index.html'],
+        exclude: ['bootstrap.js'],
+        ignorePath: /^(\.\.\/)*\.\./
+      },
+      test: {
+        src: ['<%= config.test %>/index.html'],
         exclude: ['bootstrap.js'],
         ignorePath: /^(\.\.\/)*\.\./
       },
