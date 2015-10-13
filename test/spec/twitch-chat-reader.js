@@ -1,4 +1,4 @@
-/*global expect*/
+/*global expect, TwitchClient, TwitchActionQueue */
 (function () {
   'use strict';
 

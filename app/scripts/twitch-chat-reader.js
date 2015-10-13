@@ -1,4 +1,4 @@
-/* global TwitchActionQueue, TwitchClient */
+/* global TwitchClient, TwitchActionQueue */
 'use strict';
 
 var TwitchChatReader = (function () {
@@ -7,7 +7,7 @@ var TwitchChatReader = (function () {
     read: read
   };
 
-  function read(channel, user, message, self) {
+  function read(channel, user, message) {
     message = message.trim().toUpperCase();
 
     if (isAction(message)) {
