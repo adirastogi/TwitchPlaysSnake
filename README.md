@@ -24,6 +24,13 @@ Install client-side dependencies with [bower](http://bower.io/):
 $ bower install
 ```
 
+Install test dependencies with [bower](http://bower.io/):
+
+```bash
+$ cd test
+$ bower install
+```
+
 ## Web Application
 
 After installing dependencies, you build the web application with [grunt](http://gruntjs.com/): 
