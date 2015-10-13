@@ -16,10 +16,17 @@
     var should = chai.should();
   </script>
   <!-- bower:js -->
+  <script src="/bower_components/modernizr/modernizr.js"></script>
+  <script src="/bower_components/jquery/dist/jquery.js"></script>
+  <script src="/bower_components/eventEmitter/EventEmitter.js"></script>
   <!-- endbower -->
+  <!-- include mock files here... -->
+  <script src="mock/twitch-client.js"></script>
   <!-- include source files here... -->
+  <script src="scripts/twitch-action-queue.js"></script>
+  <script src="scripts/twitch-chat-reader.js"></script>
   <!-- include spec files here... -->
-  <script src="spec/test.js"></script>
+  <script src="spec/twitch-chat-reader.js"></script>
   <script>
     if (navigator.userAgent.indexOf('PhantomJS') === -1) {
       mocha.run();

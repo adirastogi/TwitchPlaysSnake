@@ -4,7 +4,9 @@
   "dependencies": {
     "bootstrap-sass": "~3.3.5",
     "modernizr": "~2.8.3",
-    "eventEmitter": "~4.3.0"
+    "eventEmitter": "~4.3.0",
+    "mocha": "~2.3.3",
+    "chai": "~3.3.0"
   },
   "overrides": {
     "bootstrap-sass": {
