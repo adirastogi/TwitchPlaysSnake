@@ -1,4 +1,4 @@
-/* global TwitchClient, TwitchActionQueue */
+/* global TwitchClient, TwitchActionQueue, moment */
 'use strict';
 
 var TwitchChatReader = (function () {
@@ -22,8 +22,8 @@ var TwitchChatReader = (function () {
     input = input.trim();
     var action = inputMap[input.toUpperCase()];
     if (action) {
-      var now = new moment();
-      TwitchActionQueue.push({user: user, action: action, input: input, timestamp: now.format("HH:mm:ss")});
+      var timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
+      TwitchActionQueue.push({user: user, action: action, input: input, timestamp: timestamp});
     }
   }
 

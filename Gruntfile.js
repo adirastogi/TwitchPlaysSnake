@@ -58,6 +58,14 @@ module.exports = function (grunt) {
       }
     },
 
+    express: {
+      dev: {
+        options: {
+          script: 'backend/data-logger.js'
+        }
+      }
+    },
+
     browserSync: {
       options: {
         notify: false,
@@ -123,9 +131,15 @@ module.exports = function (grunt) {
     // Make sure code styles are up to par and there are no obvious mistakes
     eslint: {
       options: {
-        curly:  [2, 'multi-line'],
-        quotes: [2, 'single', 'avoid-escape'],
-        strict: [2, 'global']
+        env: {
+          browser: true,
+          node:    true
+        },
+        rules: {
+          curly:  [2, 'multi-line'],
+          quotes: [2, 'single', 'avoid-escape'],
+          strict: [2, 'global']
+        }
       },
       target: [
         'Gruntfile.js',
@@ -394,9 +408,7 @@ module.exports = function (grunt) {
     }
   });
 
-
   grunt.registerTask('serve', 'start the server and preview your app', function (target) {
-
     if (target === 'dist') {
       return grunt.task.run(['build', 'browserSync:dist']);
     }
