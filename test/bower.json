@@ -6,7 +6,8 @@
     "modernizr": "~2.8.3",
     "eventEmitter": "~4.3.0",
     "mocha": "~2.3.3",
-    "chai": "~3.3.0"
+    "chai": "~3.3.0",
+    "moment": "~2.10.6"
   },
   "overrides": {
     "bootstrap-sass": {
