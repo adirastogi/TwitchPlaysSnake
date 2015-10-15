@@ -18,7 +18,7 @@
   describe('TwitchChatReader', function () {
 
     beforeEach('clear TwitchActionQueue', function () {
-      TwitchActionQueue = [];
+      TwitchActionQueue.length = 0;
     });
 
     context('invalid chat input', function () {
