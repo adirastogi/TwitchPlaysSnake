@@ -15,6 +15,7 @@
     "grunt-contrib-uglify": "^0.8.0",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-eslint": "^17.0.0",
+    "grunt-express-server": "^0.5.1",
     "grunt-filerev": "^2.2.0",
     "grunt-mocha": "^0.4.12",
     "grunt-modernizr": "^0.6.0",
@@ -54,5 +55,8 @@
         2
       ]
     }
+  },
+  "dependencies": {
+    "express": "^4.13.3"
   }
 }

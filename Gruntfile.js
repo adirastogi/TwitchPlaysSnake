@@ -15,12 +15,13 @@ module.exports = function (grunt) {
 
   // Automatically load required grunt tasks
   require('jit-grunt')(grunt, {
-    useminPrepare: 'grunt-usemin'
+    useminPrepare: 'grunt-usemin',
+    express:       'grunt-express-server'
   });
 
   // Configurable paths
   var config = {
-    app: 'app',
+    app:  'app',
     dist: 'dist',
     test: 'test'
   };
@@ -33,6 +34,16 @@ module.exports = function (grunt) {
 
     // Watches files for changes and runs tasks based on the changed files
     watch: {
+     // options: {
+     //   livereload: true
+    //  },
+      express: {
+        files:  ['./data-logger.js'],
+        tasks:  ['express:dev'],
+        options: {
+          spawn: false
+        }
+      },
       bower: {
         files: ['bower.json'],
         tasks: ['wiredep']
@@ -55,6 +66,17 @@ module.exports = function (grunt) {
       styles: {
         files: ['<%= config.app %>/styles/{,*/}*.css'],
         tasks: ['newer:copy:styles', 'postcss']
+      }
+    },
+
+    express: {
+      options: {
+        // Override defaults here
+      },
+      dev: {
+        options: {
+          script: './data-logger.js'
+        }
       }
     },
 
@@ -407,6 +429,7 @@ module.exports = function (grunt) {
       'concurrent:server',
       'postcss',
       'browserSync:livereload',
+      'express:dev',
       'watch'
     ]);
   });
