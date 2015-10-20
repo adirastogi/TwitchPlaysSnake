@@ -34,9 +34,6 @@ module.exports = function (grunt) {
 
     // Watches files for changes and runs tasks based on the changed files
     watch: {
-     // options: {
-     //   livereload: true
-    //  },
       express: {
         files:  ['./data-logger.js'],
         tasks:  ['express:dev'],
