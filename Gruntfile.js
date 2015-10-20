@@ -22,6 +22,7 @@ module.exports = function (grunt) {
   // Configurable paths
   var config = {
     app:  'app',
+    api:  'api',
     dist: 'dist',
     test: 'test'
   };
@@ -35,8 +36,8 @@ module.exports = function (grunt) {
     // Watches files for changes and runs tasks based on the changed files
     watch: {
       express: {
-        files:  ['./data-logger.js'],
-        tasks:  ['express:dev'],
+        files:  ['<%= config.api %>/*.js'],
+        tasks:  ['express:api'],
         options: {
           spawn: false
         }
@@ -70,9 +71,9 @@ module.exports = function (grunt) {
       options: {
         // Override defaults here
       },
-      dev: {
+      api: {
         options: {
-          script: './data-logger.js'
+          script: '<%= config.api %>/server.js'
         }
       }
     },
@@ -425,8 +426,8 @@ module.exports = function (grunt) {
       'wiredep',
       'concurrent:server',
       'postcss',
+      'express:api',
       'browserSync:livereload',
-      'express:dev',
       'watch'
     ]);
   });
@@ -446,6 +447,7 @@ module.exports = function (grunt) {
     }
 
     grunt.task.run([
+      'express:api',
       'browserSync:test',
       'mocha'
     ]);
