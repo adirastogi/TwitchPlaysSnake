@@ -21,6 +21,10 @@
     <script src="/bower_components/modernizr/modernizr.js"></script>
     <!-- endbuild -->
 
+    <!-- chat dependencies -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
+    <link href="styles/chat_style.css" rel="stylesheet" type="text/css">   
+    <script src="https://d2g2wobxbkulb1.cloudfront.net/0.0.19/tmi.js"></script>  <!--For developement-->
   </head>
   <body>
     <!--[if lt IE 10]>
@@ -37,6 +41,7 @@
       </div>
     </div>
 
+    <div id="chat"></div>
 
     <!-- build:js(.) scripts/vendor.js -->
     <!-- bower:js -->
@@ -65,6 +70,10 @@
 
     <!-- build:js scripts/snake-game.js -->
     <script src="scripts/snake-game.js"></script>
+    <!-- endbuild -->
+
+    <!-- build:js scripts/chat.js -->
+    <script src="scripts/chat.js"></script>
     <!-- endbuild -->
   </body>
 </html>
