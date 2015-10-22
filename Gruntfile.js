@@ -15,12 +15,14 @@ module.exports = function (grunt) {
 
   // Automatically load required grunt tasks
   require('jit-grunt')(grunt, {
-    useminPrepare: 'grunt-usemin'
+    useminPrepare: 'grunt-usemin',
+    express:       'grunt-express-server'
   });
 
   // Configurable paths
   var config = {
-    app: 'app',
+    app:  'app',
+    api:  'api',
     dist: 'dist',
     test: 'test'
   };
@@ -33,6 +35,13 @@ module.exports = function (grunt) {
 
     // Watches files for changes and runs tasks based on the changed files
     watch: {
+      express: {
+        files:  ['<%= config.api %>/*.js'],
+        tasks:  ['express:api'],
+        options: {
+          spawn: false
+        }
+      },
       bower: {
         files: ['bower.json'],
         tasks: ['wiredep']
@@ -55,6 +64,17 @@ module.exports = function (grunt) {
       styles: {
         files: ['<%= config.app %>/styles/{,*/}*.css'],
         tasks: ['newer:copy:styles', 'postcss']
+      }
+    },
+
+    express: {
+      options: {
+        // Override defaults here
+      },
+      api: {
+        options: {
+          script: '<%= config.api %>/server.js'
+        }
       }
     },
 
@@ -406,6 +426,7 @@ module.exports = function (grunt) {
       'wiredep',
       'concurrent:server',
       'postcss',
+      'express:api',
       'browserSync:livereload',
       'watch'
     ]);
@@ -426,6 +447,7 @@ module.exports = function (grunt) {
     }
 
     grunt.task.run([
+      'express:api',
       'browserSync:test',
       'mocha'
     ]);

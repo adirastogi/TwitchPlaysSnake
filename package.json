@@ -15,6 +15,7 @@
     "grunt-contrib-uglify": "^0.8.0",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-eslint": "^17.0.0",
+    "grunt-express-server": "^0.5.1",
     "grunt-filerev": "^2.2.0",
     "grunt-mocha": "^0.4.12",
     "grunt-modernizr": "^0.6.0",
@@ -26,6 +27,11 @@
     "grunt-wiredep": "^2.0.0",
     "jit-grunt": "^0.9.1",
     "time-grunt": "^1.1.0"
+  },
+  "dependencies": {
+    "cli-table": "^0.3.1",
+    "express": "^4.13.3",
+    "json2csv": "^2.12.0"
   },
   "engines": {
     "node": ">=0.10.0"
