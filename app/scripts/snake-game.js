@@ -1,9 +1,9 @@
 $(document).ready(function() {
   // Canvas stuff
-  var canvas = $("#canvas")[0];
-  var ctx = canvas.getContext("2d");
-  var w = $("#canvas").width();
-  var h = $("#canvas").height();
+  var canvas = $('#canvas')[0];
+  var ctx = canvas.getContext('2d');
+  var w = $('#canvas').width();
+  var h = $('#canvas').height();
   
   // Lets save the cell width in a variable for easy control
   var cw = 50;
@@ -19,14 +19,14 @@ $(document).ready(function() {
   init();
 
   function init() {
-    d = "right";                     // default direction
-    ctx.font="30px Helvetica Neue";  // score font
+    d = 'RIGHT';                     // default direction
+    ctx.font = '30px Helvetica Neue';  // score font
     create_snake();
     create_food();  // Now we can see the food particle
     score = 0;      // finally lets display the score
     
     // Lets move the snake now using a timer which will trigger the paint function every 60ms
-    if(typeof game_loop != "undefined") { 
+    if(typeof game_loop != 'undefined') { 
       clearInterval(game_loop);
     }
     game_loop = setInterval(paint, 750);
@@ -53,11 +53,14 @@ $(document).ready(function() {
   
   // Lets paint the snake now
   function paint() {
+    var action = TwitchPlaysSnake.getNextAction();
+    if (action) setDirection(action);
+
     // To avoid the snake trail we need to paint the BG on every frame
     // Lets paint the canvas now
-    ctx.fillStyle = "white";
+    ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, w, h);
-    ctx.strokeStyle = "black";
+    ctx.strokeStyle = 'black';
     ctx.strokeRect(0, 0, w, h);
     
     // The movement code for the snake to come here.
@@ -68,10 +71,10 @@ $(document).ready(function() {
     // These were the position of the head cell.
     // We will increment it to get the new head position
     // Lets add proper direction based movement now
-    if(d == "right") nx++;
-    else if(d == "left") nx--;
-    else if(d == "up") ny--;
-    else if(d == "down") ny++;
+    if(d == 'RIGHT') nx++;
+    else if(d == 'LEFT') nx--;
+    else if(d == 'UP') ny--;
+    else if(d == 'DOWN') ny++;
     
     // Lets add the game over clauses now
     // This will restart the game if the snake hits the wall
@@ -109,20 +112,20 @@ $(document).ready(function() {
     }
     
     // Lets paint the food
-    paint_cell(food.x, food.y, "red");
+    paint_cell(food.x, food.y, 'red');
 
     // Lets paint the score
-    var score_text = "Score: " + score;
-    ctx.fillStyle = "black";
+    var score_text = 'Score: ' + score;
+    ctx.fillStyle = 'black';
     ctx.fillText(score_text, 5, h-5);
   }
   
   // Lets first create a generic function to paint cells
   function paint_cell(x, y, color) {
-    if (!color) color = "blue";
+    if (!color) color = 'blue';
     ctx.fillStyle = color;
     ctx.fillRect(x*cw, y*cw, cw, cw);
-    ctx.strokeStyle = "white";
+    ctx.strokeStyle = 'white';
     ctx.strokeRect(x*cw, y*cw, cw, cw);
   }
   
@@ -137,16 +140,21 @@ $(document).ready(function() {
     return false;
   }
 
-
   // Lets add the keyboard controls now
-  $(document).keydown(function(e){
+  $(document).keydown(function(e) {
     var key = e.which;
-    // We will add another clause to prevent reverse gear
-    if(key == "37" && d != "right") d = "left";
-    else if(key == "38" && d != "down") d = "up";
-    else if(key == "39" && d != "left") d = "right";
-    else if(key == "40" && d != "up") d = "down";
-    // The snake is now keyboard controllable
+    if     (key === 37) setDirection('LEFT');
+    else if(key === 38) setDirection('UP');
+    else if(key === 39) setDirection('RIGHT');
+    else if(key === 40) setDirection('DOWN');
   });
+
+  function setDirection(newDirection) {
+    var x = 0;
+    if     (newDirection === 'LEFT'  && d !== 'RIGHT') d = 'LEFT';
+    else if(newDirection === 'UP'    && d !== 'DOWN')  d = 'UP';
+    else if(newDirection === 'RIGHT' && d !== 'LEFT')  d = 'RIGHT';
+    else if(newDirection === 'DOWN'  && d !== 'UP')    d = 'DOWN';
+  }
 
 });
