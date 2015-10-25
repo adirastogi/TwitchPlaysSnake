@@ -1,16 +1,13 @@
-var channels = ['tpsnake'], // Channels to initially join
-    fadeDelay = 5000, // Set to false to disable chat fade
-    showChannel = true, // Show repespective channels if the channels is longer than 1
-    useColor = true, // Use chatters' colors or to inherit
-    showBadges = true, // Show chatters' badges
-    showEmotes = true, // Show emotes in the chat
-    doTimeouts = true, // Hide the messages of people who are timed-out
+var channels     = ['tpsnake'], // Channels to initially join
+    fadeDelay    = 5000, // Set to false to disable chat fade
+    showChannel  = true, // Show repespective channels if the channels is longer than 1
+    useColor     = true, // Use chatters' colors or to inherit
+    showBadges   = true, // Show chatters' badges
+    showEmotes   = true, // Show emotes in the chat
+    doTimeouts   = true, // Hide the messages of people who are timed-out
     doChatClears = true, // Hide the chat from an entire channel
-    showHosting = true, // Show when the channel is hosting or not
+    showHosting  = true, // Show when the channel is hosting or not
     showConnectionNotices = true; // Show messages like "Connected" and "Disconnected"
-
-
-
 
 
 var chat = document.getElementById('chat'),
@@ -102,12 +99,12 @@ function badges(chan, user, isBot) {
 
 function handleChat(channel, user, message, self) {
   
-  var chan = dehash(channel),
-      name = user.username,
-      chatLine = document.createElement('div'),
+  var chan        = dehash(channel),
+      name        = user.username,
+      chatLine    = document.createElement('div'),
       chatChannel = document.createElement('span'),
-      chatName = document.createElement('span'),
-      chatColon = document.createElement('span'),
+      chatName    = document.createElement('span'),
+      chatColon   = document.createElement('span'),
       chatMessage = document.createElement('span');
   
   var color = useColor ? user.color : 'inherit';
@@ -135,9 +132,9 @@ function handleChat(channel, user, message, self) {
   chatChannel.className = 'chat-channel';
   chatChannel.innerHTML = chan;
   
-  chatName.className = 'chat-name';
+  chatName.className   = 'chat-name';
   chatName.style.color = color;
-  chatName.innerHTML = user['display-name'] || name;
+  chatName.innerHTML   = user['display-name'] || name;
   
   chatColon.className = 'chat-colon';
   
@@ -215,6 +212,7 @@ function timeout(channel, username) {
     }
   }
 }
+
 function clearChat(channel) {
   if(!doChatClears) return false;
   var toHide = document.querySelectorAll('.chat-line[data-channel="' + channel + '"]');
@@ -226,6 +224,7 @@ function clearChat(channel) {
   }
   chatNotice('Chat was cleared in ' + capitalize(dehash(channel)), 1000, 1, 'chat-delete-clear');
 }
+
 function hosting(channel, target, viewers, unhost) {
   if(!showHosting) return false;
   if(viewers == '-') viewers = 0;
@@ -251,28 +250,35 @@ var joinAccounced = [];
 client.addListener('connecting', function (address, port) {
   if(showConnectionNotices) chatNotice('Connecting', 1000, -4, 'chat-connection-good-connecting');
 });
+
 client.addListener('logon', function () {
   if(showConnectionNotices) chatNotice('Authenticating', 1000, -3, 'chat-connection-good-logon');
 });
+
 client.addListener('connectfail', function () {
   if(showConnectionNotices) chatNotice('Connection failed', 1000, 3, 'chat-connection-bad-fail');
 });
+
 client.addListener('connected', function (address, port) {
   if(showConnectionNotices) chatNotice('Connected', 1000, -2, 'chat-connection-good-connected');
   joinAccounced = [];
 });
+
 client.addListener('disconnected', function (reason) {
   if(showConnectionNotices) chatNotice('Disconnected: ' + (reason || ''), 3000, 2, 'chat-connection-bad-disconnected');
 });
+
 client.addListener('reconnect', function () {
   if(showConnectionNotices) chatNotice('Reconnected', 1000, 'chat-connection-good-reconnect');
 });
+
 client.addListener('join', function (channel, username) {
   if(joinAccounced.indexOf(channel) == -1) {
     if(showConnectionNotices) chatNotice('Joined ' + capitalize(dehash(channel)), 1000, -1, 'chat-room-join');
     joinAccounced.push(channel);
   }
 });
+
 client.addListener('part', function (channel, username) {
   var index = joinAccounced.indexOf(channel);
   if(index > -1) {
