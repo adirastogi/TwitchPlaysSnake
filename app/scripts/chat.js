@@ -17,11 +17,11 @@ var chat = document.getElementById('chat'),
     defaultColors = ['rgb(255, 0, 0)','rgb(0, 0, 255)','rgb(0, 128, 0)','rgb(178, 34, 34)','rgb(255, 127, 80)','rgb(154, 205, 50)','rgb(255, 69, 0)','rgb(46, 139, 87)','rgb(218, 165, 32)','rgb(210, 105, 30)','rgb(95, 158, 160)','rgb(30, 144, 255)','rgb(255, 105, 180)','rgb(138, 43, 226)','rgb(0, 255, 127)'],
     randomColorsChosen = {},
     clientOptions = {
-        options: {
-            debug: true
-          },
-        channels: channels
-      },
+      options: {
+          debug: true
+        },
+      channels: channels
+    },
     client = new irc.client(clientOptions);
 
 function dehash(channel) {
@@ -35,13 +35,13 @@ function capitalize(n) {
 function htmlEntities(html) {
   function it() {
     return html.map(function(n, i, arr) {
-        if(n.length == 1) {
-          return n.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
-               return '&#'+i.charCodeAt(0)+';';
-            });
-        }
-        return n;
-      });
+      if(n.length == 1) {
+        return n.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+          return '&#'+i.charCodeAt(0)+';';
+        });
+      }
+      return n;
+    });
   }
   var isArray = Array.isArray(html);
   if(!isArray) {
@@ -62,13 +62,13 @@ function formatEmotes(text, emotes) {
         mote = mote.split('-');
         mote = [parseInt(mote[0]), parseInt(mote[1])];
         var length =  mote[1] - mote[0],
-          empty = Array.apply(null, new Array(length + 1)).map(function() { return '' });
+        empty = Array.apply(null, new Array(length + 1)).map(function() { return ''; });
         splitText = splitText.slice(0, mote[0]).concat(empty).concat(splitText.slice(mote[1] + 1, splitText.length));
         splitText.splice(mote[0], 1, '<img class="emoticon" src="http://static-cdn.jtvnw.net/emoticons/v1/' + i + '/3.0">');
       }
     }
   }
-  return htmlEntities(splitText).join('')
+  return htmlEntities(splitText).join('');
 }
 
 function badges(chan, user, isBot) {
@@ -180,7 +180,7 @@ function chatNotice(information, noticeFadeDelay, level, additionalClasses) {
     ele.className += ' ' + additionalClasses;
   }
   
-  if(typeof level == 'number' && level != 0) {
+  if(typeof level == 'number' && level !== 0) {
     ele.dataset.level = level;
   }
   
@@ -202,8 +202,8 @@ function timeout(channel, username) {
   if(!recentTimeouts.hasOwnProperty(channel)) {
     recentTimeouts[channel] = {};
   }
-  if(!recentTimeouts[channel].hasOwnProperty(username) || recentTimeouts[channel][username] + 1000*10 < + new Date) {
-    recentTimeouts[channel][username] = + new Date;
+  if(!recentTimeouts[channel].hasOwnProperty(username) || recentTimeouts[channel][username] + 1000*10 < + new Date()) {
+    recentTimeouts[channel][username] = + new Date();
     chatNotice(capitalize(username) + ' was timed-out in ' + capitalize(dehash(channel)), 1000, 1, 'chat-delete-timeout');
   }
   var toHide = document.querySelectorAll('.chat-line[data-channel="' + channel + '"][data-username="' + username + '"]:not(.chat-timedout) .chat-message');
@@ -224,7 +224,7 @@ function clearChat(channel) {
       h.className += ' chat-cleared';
     }
   }
-  chatNotice('Chat was cleared in ' + capitalize(dehash(channel)), 1000, 1, 'chat-delete-clear')
+  chatNotice('Chat was cleared in ' + capitalize(dehash(channel)), 1000, 1, 'chat-delete-clear');
 }
 function hosting(channel, target, viewers, unhost) {
   if(!showHosting) return false;
@@ -244,7 +244,7 @@ client.addListener('message', handleChat);
 client.addListener('timeout', timeout);
 client.addListener('clearchat', clearChat);
 client.addListener('hosting', hosting);
-client.addListener('unhost', function(channel, viewers) { hosting(channel, null, viewers, true) });
+client.addListener('unhost', function(channel, viewers) { hosting(channel, null, viewers, true); });
 
 var joinAccounced = [];
 
@@ -277,7 +277,7 @@ client.addListener('part', function (channel, username) {
   var index = joinAccounced.indexOf(channel);
   if(index > -1) {
     if(showConnectionNotices) chatNotice('Parted ' + capitalize(dehash(channel)), 1000, -1, 'chat-room-part');
-    joinAccounced.splice(joinAccounced.indexOf(channel), 1)
+    joinAccounced.splice(joinAccounced.indexOf(channel), 1);
   }
 });
 
