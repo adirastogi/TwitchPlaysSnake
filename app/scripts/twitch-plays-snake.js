@@ -39,8 +39,9 @@ var TwitchPlaysSnake = (function () {
   }
 
   function selectNextAction() {
-    // http://stackoverflow.com/a/4550514
+    // randomly select action: http://stackoverflow.com/a/4550514
     var action = actionQueue[Math.floor(Math.random() * actionQueue.length)];
+    // clear action queue
     actionQueue.length = 0;
     return action;
   }
@@ -52,13 +53,6 @@ var TwitchPlaysSnake = (function () {
       return o.action;
     }
   }
-
-  // function executeNextAction() {
-  //   var o = getNextAction();
-  //   if (o) {
-  //     jQuery.event.trigger({type: 'keypress', which: keyMap(o.action)});
-  //   }
-  // }
 
   function handleChat(channel, user, message, isBot) {
     if (!isBot) {
