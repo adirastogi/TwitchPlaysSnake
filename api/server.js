@@ -4,11 +4,14 @@ var bodyParser = require('body-parser'),
     express    = require('express'),
     moment     = require('moment'),
     path       = require('path'),
+    cors       = require('cors'),
     fs         = require('fs');
 
 var GameManager = require('./game-manager.js');
 
 var app = express();
+
+app.use(cors());
 
 app.use(bodyParser.json({ type: 'application/json' }));
 

@@ -1,146 +1,28 @@
+/* global EventLogger */
+
 $(document).ready(function() {
+  'use strict';
+
   // Canvas stuff
   var canvas = $('#canvas')[0];
   var ctx = canvas.getContext('2d');
   var w = $('#canvas').width();
   var h = $('#canvas').height();
   
-  // Lets save the cell width in a variable for easy control
-  var cw = 50;
-  var d;
+  // Save the cell width in a variable for easy control
+  var cellWidth = 50;
+  var direction, prevDirection;
   var food;
   var score;
-  var game_loop;
+  var gameLoopIntervalId;
   
-  // Lets create the snake now
-  var snake_array; // an array of cells to make up the snake
+  // An array of cells to make up the snake
+  var snakeArray; 
   
   // Start the game
   init();
 
-  function init() {
-    d = 'RIGHT';                     // default direction
-    ctx.font = '30px Helvetica Neue';  // score font
-    create_snake();
-    create_food();  // Now we can see the food particle
-    score = 0;      // finally lets display the score
-    
-    // Lets move the snake now using a timer which will trigger the paint function every 60ms
-    if(typeof game_loop != 'undefined') { 
-      clearInterval(game_loop);
-    }
-    game_loop = setInterval(paint, 750);
-  }
-  
-  function create_snake() {
-    var length = 3;   // Length of the snake
-    snake_array = []; // Empty array to start with
-    for(var i = length-1; i >= 0; i--) {
-      // This will create a horizontal snake starting from the top left
-      snake_array.push({x: i, y: 1});
-    }
-  }
-  
-  // Lets create the food now
-  function create_food() {
-    // This will create a cell with x/y between 0-44
-    // Because there are 45(450/10) positions accross the rows and columns
-    food = {
-      x: Math.round(Math.random()*(w-cw)/cw), 
-      y: Math.round(Math.random()*(h-cw)/cw), 
-    };
-  }
-  
-  // Lets paint the snake now
-  function paint() {
-    var action = TwitchPlaysSnake.getNextAction();
-    if (action) setDirection(action);
-
-    // To avoid the snake trail we need to paint the BG on every frame
-    // Lets paint the canvas now
-    ctx.fillStyle = 'white';
-    ctx.fillRect(0, 0, w, h);
-    ctx.strokeStyle = 'black';
-    ctx.strokeRect(0, 0, w, h);
-    
-    // The movement code for the snake to come here.
-    // The logic is simple
-    // Pop out the tail cell and place it infront of the head cell
-    var nx = snake_array[0].x;
-    var ny = snake_array[0].y;
-    // These were the position of the head cell.
-    // We will increment it to get the new head position
-    // Lets add proper direction based movement now
-    if(d == 'RIGHT') nx++;
-    else if(d == 'LEFT') nx--;
-    else if(d == 'UP') ny--;
-    else if(d == 'DOWN') ny++;
-    
-    // Lets add the game over clauses now
-    // This will restart the game if the snake hits the wall
-    // Lets add the code for body collision
-    // Now if the head of the snake bumps into its body, the game will restart
-    if(nx == -1 || nx == w/cw || ny == -1 || ny == h/cw || check_collision(nx, ny, snake_array)) {
-      // restart game
-      init();
-      // Lets organize the code a bit now.
-      return;
-    }
-    
-    // Lets write the code to make the snake eat the food
-    // The logic is simple
-    // If the new head position matches with that of the food,
-    // Create a new head instead of moving the tail
-    if(nx == food.x && ny == food.y) {
-      var tail = {x: nx, y: ny};
-      score++;
-      // Create new food
-      create_food();
-    }
-    else {
-      var tail = snake_array.pop(); // pops out the last cell
-      tail.x = nx; tail.y = ny;
-    }
-    // The snake can now eat the food.
-    
-    snake_array.unshift(tail); // puts back the tail as the first cell
-    
-    for(var i = 0; i < snake_array.length; i++) {
-      var c = snake_array[i];
-      // Lets paint 10px wide cells
-      paint_cell(c.x, c.y);
-    }
-    
-    // Lets paint the food
-    paint_cell(food.x, food.y, 'red');
-
-    // Lets paint the score
-    var score_text = 'Score: ' + score;
-    ctx.fillStyle = 'black';
-    ctx.fillText(score_text, 5, h-5);
-  }
-  
-  // Lets first create a generic function to paint cells
-  function paint_cell(x, y, color) {
-    if (!color) color = 'blue';
-    ctx.fillStyle = color;
-    ctx.fillRect(x*cw, y*cw, cw, cw);
-    ctx.strokeStyle = 'white';
-    ctx.strokeRect(x*cw, y*cw, cw, cw);
-  }
-  
-  function check_collision(x, y, array) {
-    // This function will check if the provided x/y coordinates exist
-    // in an array of cells or not
-    for(var i = 0; i < array.length; i++) {
-      if(array[i].x == x && array[i].y == y) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  // Lets add the keyboard controls now
+  // Add the keyboard controls
   $(document).keydown(function(e) {
     var key = e.which;
     if     (key === 37) setDirection('LEFT');
@@ -149,12 +31,204 @@ $(document).ready(function() {
     else if(key === 40) setDirection('DOWN');
   });
 
+  function init() {
+    EventLogger.gameStart().then(function () {
+      direction = prevDirection = 'RIGHT';
+      ctx.font = '30px Helvetica Neue'; // score font
+      createSnake();
+      createFood();
+      score = 0;
+      
+      // Move the snake now using a timer which will trigger the gameLoop function every 60ms
+      if(typeof gameLoopIntervalId !== 'undefined') { 
+        clearInterval(gameLoopIntervalId);
+      }
+
+      gameLoopIntervalId = setInterval(gameLoop, 1000);
+    });
+  }
+  
+  function createSnake() {
+    var snakeLength = 3;
+    snakeArray = [];
+    // Create a horizontal snake starting from the top left
+    for(var i = snakeLength-1; i >= 0; i--) {
+      snakeArray.push({x: i, y: 1});
+    }
+  }
+  
+  // Create the food now
+  function createFood() {
+    // This will create a cell with x/y between 0-44
+    // Because there are 45(450/10) positions accross the rows and columns
+    food = {
+      x: Math.round(Math.random()*(w-cellWidth)/cellWidth), 
+      y: Math.round(Math.random()*(h-cellWidth)/cellWidth), 
+    };
+  }
+  
+  function gameLoop() {
+    // Get next action to execute
+    var o = TwitchPlaysSnake.getNextAction();
+
+    // Repeat previous action if no action was submitted by users
+    if (!o) o = { user: { username: 'SnakeGame' }, action: direction };
+
+    // Set snake direction
+    setDirection(o.action);
+    EventLogger.actionExecuted(o.user, o.action);
+
+    // Get coordinates of next snake position
+    var pos = getNextPosition(direction);
+
+    // Get coordinates of where snake would have gone w/o user input
+    var avoidedPos = getNextPosition(prevDirection);
+
+    // Detect avoided collision with apple
+    if(checkFoodCollision(avoidedPos) && !checkFoodCollision(pos)) {
+      // TODO: Decrease TPS of o.user
+      EventLogger.appleAvoided(o.user);
+    }
+
+    // Detect wall/snake collisions (game over)
+    var collision = false;
+
+    // Check for collision with wall
+    if(checkWallCollision(pos)) {
+      EventLogger.wallCollision(o.user);
+      collision = true;
+    }
+
+    // Check for collision with snake
+    if(checkSnakeCollision(pos)) {
+      EventLogger.snakeCollision(o.user);
+      collision = true;
+    }
+
+    // Restart game if collision took place
+    if(collision) {
+      // TODO: increase TPS of o.user
+      EventLogger.gameEnd().then(function () {
+        init();
+      });
+      return;
+    }
+
+    // Detect avoided collisions with snake/wall
+    var collisionAvoided = false;
+
+    // Check for avoided wall collision
+    if(checkWallCollision(avoidedPos)) {
+      EventLogger.wallAvoided(o.user);
+      collisionAvoided = true;
+    }
+
+    // Check for avoided snake collision
+    if(checkSnakeCollision(avoidedPos)) {
+      EventLogger.snakeAvoided(o.user);
+      collisionAvoided = true;
+    }
+
+    if(collisionAvoided) {
+      // TODO: Decrease TPS of o.user
+    }
+    
+    // Code to make the snake eat the food
+    // If the new head position matches with that of the food,
+    // create a new head instead of moving the tail
+    if(checkFoodCollision(pos)) {
+      // TODO: Decrease TPS of o.user
+      // TODO: Decrease TPS of all users if no action was submitted
+      EventLogger.appleCollected(o.user);
+      var tail = {x: pos.x, y: pos.y};
+      score++;
+      createFood();
+    }
+    else {
+      // Pop out the tail cell and place it infront of the head cell
+      var tail = snakeArray.pop();
+      tail.x = pos.x; 
+      tail.y = pos.y;
+    }
+    
+    // Put back the tail as the first cell
+    snakeArray.unshift(tail); 
+
+    // Take note of direction change here to avoid race condition w/ user input
+    prevDirection = direction;
+    
+    paintBackground();
+    paintSnake();
+    paintFood();
+    paintScore();
+  }
+
+  function paintBackground() {
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = 'black';
+    ctx.strokeRect(0, 0, w, h);
+  }
+
+  function paintFood() {
+    paintCell(food.x, food.y, 'red');
+  }
+
+  function paintScore() {
+    var scoreText = 'Score: ' + score;
+    ctx.fillStyle = 'black';
+    ctx.fillText(scoreText, 5, h-5);
+  }
+
+  function paintSnake() {
+    for(var i = 0; i < snakeArray.length; i++) {
+      var c = snakeArray[i];
+      paintCell(c.x, c.y);
+    }
+  }
+  
+  function paintCell(x, y, color) {
+    if (!color) color = 'blue';
+    ctx.fillStyle = color;
+    ctx.fillRect(x*cellWidth, y*cellWidth, cellWidth, cellWidth);
+    ctx.strokeStyle = 'white';
+    ctx.strokeRect(x*cellWidth, y*cellWidth, cellWidth, cellWidth);
+  }
+
+  function getNextPosition(dir) {
+    var x = snakeArray[0].x;
+    var y = snakeArray[0].y;
+
+    if     (dir === 'RIGHT') x++;
+    else if(dir === 'LEFT')  x--;
+    else if(dir === 'UP')    y--;
+    else if(dir === 'DOWN')  y++;
+
+    return {x: x, y: y};
+  }
+  
+  function checkSnakeCollision(pos) {
+    for(var i = 0; i < snakeArray.length; i++) {
+      if(snakeArray[i].x === pos.x && snakeArray[i].y === pos.y) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function checkWallCollision(pos) {
+    return pos.x === -1 || pos.x === w/cellWidth || pos.y === -1 || pos.y === h/cellWidth;
+  }
+
+  function checkFoodCollision(pos) {
+    return pos.x === food.x && pos.y === food.y;
+  }
+
   function setDirection(newDirection) {
-    var x = 0;
-    if     (newDirection === 'LEFT'  && d !== 'RIGHT') d = 'LEFT';
-    else if(newDirection === 'UP'    && d !== 'DOWN')  d = 'UP';
-    else if(newDirection === 'RIGHT' && d !== 'LEFT')  d = 'RIGHT';
-    else if(newDirection === 'DOWN'  && d !== 'UP')    d = 'DOWN';
+    if     (newDirection === 'LEFT'  && prevDirection !== 'RIGHT') direction = 'LEFT';
+    else if(newDirection === 'UP'    && prevDirection !== 'DOWN')  direction = 'UP';
+    else if(newDirection === 'RIGHT' && prevDirection !== 'LEFT')  direction = 'RIGHT';
+    else if(newDirection === 'DOWN'  && prevDirection !== 'UP')    direction = 'DOWN';
   }
 
 });

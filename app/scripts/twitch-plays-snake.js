@@ -1,4 +1,4 @@
-/* global TwitchClient, TwitchChat, moment, jQuery */
+/* global TwitchClient, TwitchChat, EventLogger, moment */
 'use strict';
 
 var TwitchPlaysSnake = (function () {
@@ -40,17 +40,17 @@ var TwitchPlaysSnake = (function () {
 
   function selectNextAction() {
     // randomly select action: http://stackoverflow.com/a/4550514
-    var action = actionQueue[Math.floor(Math.random() * actionQueue.length)];
-    // clear action queue
+    var o = actionQueue[Math.floor(Math.random() * actionQueue.length)];
     actionQueue.length = 0;
-    return action;
+    return o;
   }
 
   function getNextAction() {
     var o = selectNextAction();
     if (o) {
+      EventLogger.actionSelected(o.user, o.action);
       TwitchChat.update(o.channel, o.user, o.action);
-      return o.action;
+      return o;
     }
   }
 
@@ -59,6 +59,9 @@ var TwitchPlaysSnake = (function () {
       message = message.trim();
       var action = inputMap[message.toUpperCase()];
       if (action) {
+        // Notify server of action submission
+        EventLogger.actionSubmitted(user, action);
+        // Add action to queue
         var now = new moment();
         actionQueue.push({
           action:    action, 

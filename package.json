@@ -29,9 +29,8 @@
     "time-grunt": "^1.1.0"
   },
   "dependencies": {
-    "cli-table": "^0.3.1",
-    "express": "^4.13.3",
-    "json2csv": "^2.12.0"
+    "cors": "^2.7.1",
+    "tmi.js": "0.0.24"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -60,8 +59,5 @@
         2
       ]
     }
-  },
-  "dependencies": {
-    "tmi.js": "0.0.24"
   }
 }

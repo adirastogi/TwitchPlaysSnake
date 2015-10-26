@@ -9,8 +9,8 @@ var outputDirectory = path.join(__dirname, 'output');
 
 var csvFile, datetime, gameDirectory, gameEvents, summaryFile;
 
-var eventFields     = ['event', 'player', 'value', 'time'],
-    eventFieldNames = ['Event', 'Player', 'Value', 'Time'];
+var eventFields     = ['event', 'user', 'value', 'time'],
+    eventFieldNames = ['Event', 'User', 'Value', 'Time'];
 
 if (!fs.existsSync(outputDirectory)) {
   fs.mkdirSync(outputDirectory);
@@ -21,32 +21,6 @@ module.exports = {
   endGame:    endGame,
   logEvents:  logEvents
 };
-
-// GAME OUTPUT EXAMPLE FORMAT
-// +-----------------+---------------+-------+---------------------+
-// | Event           | Player        | Value | Time                |
-// +-----------------+---------------+-------+---------------------+
-// | GAME_START      |               |       | 2015-10-19_11-21-55 |
-// | PLAYER_ACTION   | TwitchUser001 | RIGHT | 2015-10-19_11-21-55 |
-// | PLAYER_ACTION   | TwitchUser002 | RIGHT | 2015-10-19_11-21-55 |
-// | PLAYER_ACTION   | TwitchUser003 | DOWN  | 2015-10-19_11-21-55 |
-// | ACTION_SELECTED | TwitchUser001 | RIGHT | 2015-10-19_11-21-55 |
-// | ACTION_SELECTED | TwitchUser002 | RIGHT | 2015-10-19_11-21-55 |
-// | GAME_ACTION     | TwitchUser002 | RIGHT | 2015-10-19_11-21-55 |
-// | APPLE_COLLECTED | TwitchUser002 |       | 2015-10-19_11-21-55 |
-// | TPS_UPDATE      | TwitchUser002 | 0.25  | 2015-10-19_11-21-55 |
-// | PLAYER_ACTION   | TwitchUser003 | LEFT  | 2015-10-19_11-21-55 |
-// | PLAYER_ACTION   | TwitchUser003 | RIGHT | 2015-10-19_11-21-55 |
-// | PLAYER_ACTION   | TwitchUser001 | DOWN  | 2015-10-19_11-21-55 |
-// | PLAYER_ACTION   | TwitchUser002 | DOWN  | 2015-10-19_11-21-55 |
-// | ACTION_SELECTED | TwitchUser002 | UP    | 2015-10-19_11-21-55 |
-// | ACTION_SELECTED | TwitchUser003 | RIGHT | 2015-10-19_11-21-55 |
-// | APPLE_AVOIDED   | TwitchUser003 |       | 2015-10-19_11-21-55 |
-// | WALL_COLLISION  | TwitchUser003 |       | 2015-10-19_11-21-55 |
-// | TPS_UPDATE      | TwitchUser003 | 0.40  | 2015-10-19_11-21-55 |
-// | GAME_ACTION     | TwitchUser003 | RIGHT | 2015-10-19_11-21-55 |
-// | GAME_END        |               |       | 2015-10-19_11-21-55 |
-// +-----------------+---------------+-------+---------------------+
 
 function startGame(settings) {
   validateGameSettings(settings);
@@ -60,8 +34,6 @@ function startGame(settings) {
   summaryFile   = path.join(gameDirectory, 'summary.txt');
   gameEvents    = [{ event: 'GAME_START', time: settings.startTime }];
 
-  console.log(gameEvents);
-
   if (!fs.existsSync(gameDirectory)) {
     fs.mkdirSync(gameDirectory);
     console.log('[INFO] Game Directory Created');
@@ -70,8 +42,10 @@ function startGame(settings) {
 
 function logEvents(events) {
   validateEvents(events);
-  console.log('[INFO] Events Received');
   gameEvents = gameEvents.concat(events);
+  events.forEach(function (o) {
+    console.log('[INFO] Event: [' + o.user + '] ' + o.event + ' ' + (o.value || ''));
+  });
 }
 
 function endGame(results) {
@@ -97,7 +71,7 @@ function endGame(results) {
 function generateSummary() {
   var table = new Table({ head: eventFieldNames, colWidths: [20, 20, 10, 25] });
   for (let event of gameEvents) {
-    table.push([event.event, event.player || '', event.value || '', event.time]);
+    table.push([event.event, event.user || '', event.value || '', event.time]);
   }
   return table.toString();
 }
