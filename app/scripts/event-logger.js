@@ -37,6 +37,8 @@ var EventLogger = (function () {
       GAME_EVENT_URL = API_SERVER + '/game/event',
       GAME_START_URL = API_SERVER + '/game/start';
 
+  var events = [];
+
   $.ajaxSetup({
     contentType: 'application/json; charset=utf-8'
   });
@@ -49,6 +51,7 @@ var EventLogger = (function () {
     appleCollected:  appleCollected,
     gameEnd:         gameEnd,
     gameStart:       gameStart,
+    sendEvents:      sendEvents,
     tpsUpdate:       tpsUpdate,
     snakeAvoided:    snakeAvoided,
     snakeCollision:  snakeCollision,
@@ -69,66 +72,77 @@ var EventLogger = (function () {
   function gameEnd() {
     var data = { endTime: new moment().format('YYYY-MM-DD HH:mm:ss') };
 
-    return $.ajax({
-      type: 'POST',
-      url:  GAME_END_URL,
-      data: JSON.stringify(data)
+    return sendEvents().then(function () {
+      return $.ajax({
+        type: 'POST',
+        url:  GAME_END_URL,
+        data: JSON.stringify(data)
+      });
     });
   }
 
-  function logEvent(event, user, value) {
-    var data = {
+  function sendEvents() {
+    if (events.length > 0) {
+      return $.ajax({
+        type: 'POST',
+        url:  GAME_EVENT_URL,
+        data: JSON.stringify(events)
+      }).then(function () {
+        events.length = 0;
+      });
+    }
+    else {
+      return $.Deferred().resolve().promise();
+    }
+  }
+
+  function addEvent(event, user, value) {
+    events.push({
       event: event,
       user:  user.username,
       value: value,
       time:  new moment().format('YYYY-MM-DD HH:mm:ss')
-    };
-
-    return $.ajax({
-      type: 'POST',
-      url:  GAME_EVENT_URL,
-      data: JSON.stringify([data])
     });
   }
 
   function actionSelected(user, action) {
-    logEvent('ACTION_SELECTED', user, action);
+    addEvent('ACTION_SELECTED', user, action);
   }
 
   function actionSubmitted(user, action) {
-    logEvent('ACTION_SUBMITTED', user, action);
+    addEvent('ACTION_SUBMITTED', user, action);
   }
 
   function actionExecuted(user, action) {
-    logEvent('ACTION_EXECUTED', user, action);
+    addEvent('ACTION_EXECUTED', user, action);
   }
 
   function appleAvoided(user) {
-    logEvent('APPLE_AVOIDED', user);
+    addEvent('APPLE_AVOIDED', user);
   }
 
   function appleCollected(user) {
-    logEvent('APPLE_COLLECTED', user);
+    addEvent('APPLE_COLLECTED', user);
   }
 
   function tpsUpdate(user, tps) {
-    logEvent('TPS_UPDATED', user, tps);
+    addEvent('TPS_UPDATED', user, tps);
   }
 
   function snakeAvoided(user) {
-    logEvent('SNAKE_AVOIDED', user);
+    addEvent('SNAKE_AVOIDED', user);
   }
 
   function snakeCollision(user) {
-    logEvent('SNAKE_COLLISION', user);
+    addEvent('SNAKE_COLLISION', user);
   }
 
   function wallAvoided(user) {
-    logEvent('WALL_AVOIDED', user);
+    addEvent('WALL_AVOIDED', user);
   }
 
   function wallCollision(user) {
-    logEvent('WALL_COLLISION', user);
+    addEvent('WALL_COLLISION', user);
   }
 
 })();

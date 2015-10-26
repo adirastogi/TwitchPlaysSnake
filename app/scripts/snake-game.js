@@ -161,6 +161,9 @@ $(document).ready(function() {
     paintSnake();
     paintFood();
     paintScore();
+
+    // Send all event logs to the server
+    EventLogger.sendEvents();
   }
 
   function paintBackground() {
