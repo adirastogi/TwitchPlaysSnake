@@ -29,8 +29,10 @@
     "time-grunt": "^1.1.0"
   },
   "dependencies": {
+    "body-parser": "^1.14.1",
     "cors": "^2.7.1",
-    "tmi.js": "0.0.24"
+    "express": "^4.13.3",
+    "moment": "^2.10.6"
   },
   "engines": {
     "node": ">=0.10.0"
