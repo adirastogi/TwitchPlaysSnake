@@ -3,8 +3,17 @@
 
 var TwitchPlaysSnake = (function () {
 
+  // Queue of actions
   var actionQueue = [];
 
+  // Users who are viewing the stream
+  // TODO: Users should have:
+  //   1. Count of malicious actions
+  //   2. Count of positive actions
+  //   3. TPS score 
+  var users = [];
+
+  // Maps user input to snake game commands
   var inputMap = {
     'LEFT':  'LEFT',
     'UP':    'UP',
@@ -16,17 +25,12 @@ var TwitchPlaysSnake = (function () {
     'S':     'DOWN'
   };
 
-  var keyMap = {
-    'LEFT':  37,
-    'UP':    38,
-    'RIGHT': 39,
-    'DOWN':  40,
-  };
-
   return {
     getActionQueue: getActionQueue,
     getNextAction:  getNextAction,
+    join:           join,
     handleChat:     handleChat,
+    part:           part,
     reset:          reset
   };
 
@@ -72,6 +76,14 @@ var TwitchPlaysSnake = (function () {
         });
       }
     }
+  }
+
+  function join(channel, username) {
+    // TODO: User has joined the channel
+  }
+
+  function part(channel, username) {
+    // TODO: User has left the channel
   }
 
 })();
