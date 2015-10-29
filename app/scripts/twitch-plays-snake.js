@@ -6,12 +6,15 @@ var TwitchPlaysSnake = (function () {
   // Queue of actions
   var actionQueue = [];
 
-  // Users who are viewing the stream
+  // Users who are currently viewing the stream
   // TODO: Users should have:
   //   1. Count of malicious actions
   //   2. Count of positive actions
   //   3. TPS score 
-  var users = [];
+  var activeUsers = [];
+
+  // Users who are not currently viewing the stream
+  var inactiveUsers = [];
 
   // Maps user input to snake game commands
   var inputMap = {
@@ -80,10 +83,14 @@ var TwitchPlaysSnake = (function () {
 
   function join(channel, username) {
     // TODO: User has joined the channel
+    // users.push({
+    //   username: username,
+    //   ...
+    // });
   }
 
   function part(channel, username) {
-    // TODO: User has left the channel
+    // TODO: User has left the channel 
   }
 
 })();
