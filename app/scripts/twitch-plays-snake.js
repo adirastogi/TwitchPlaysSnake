@@ -3,14 +3,10 @@
 
 var TwitchPlaysSnake = (function () {
 
-  // Queue of actions
-  var actionQueue = [];
+  // Maps each user to their submitted action
+  var actionMap = {};
 
   // Users who are currently viewing the stream
-  // TODO: Users should have:
-  //   1. Count of malicious actions
-  //   2. Count of positive actions
-  //   3. TPS score 
   var activeUsers = [];
 
   // Users who are not currently viewing the stream
@@ -29,7 +25,7 @@ var TwitchPlaysSnake = (function () {
   };
 
   return {
-    getActionQueue: getActionQueue,
+    getActionMap: getActionMap,
     getNextAction:  getNextAction,
     join:           join,
     handleChat:     handleChat,
@@ -38,59 +34,102 @@ var TwitchPlaysSnake = (function () {
   };
 
   function reset() {
-    actionQueue.length = 0;
+    for (var username in actionMap) {
+      if (actionMap.hasOwnProperty(username)) {
+        actionMap[username].action = null;
+      }
+    }
   }
 
-  function getActionQueue() {
-    return actionQueue;
+  function addUser(user) {
+    if (!actionMap[user.username]) {
+      actionMap[user.username] = {};
+    }
+
+    for (var i = 0, len = inactiveUsers.length; i < len; i++) {
+      var inactiveUser = inactiveUsers[i];
+      if (user.username === inactiveUser.username) {
+        activeUsers.push(user);
+        inactiveUsers.splice(i, 1);
+        return;
+      }
+    }
+
+    activeUsers.push({
+      username:         user.username,
+      maliciousAction:  0,
+      positiveAction:   0,
+      TPS:              0.25
+    });
+  }
+
+  function setUserAction(channel, user, action) {
+    addUser(user);
+    actionMap[user.username].action    = action;
+    actionMap[user.username].channel   = channel;
+    actionMap[user.username].user      = user;
+    actionMap[user.username].timestamp = new moment().format('HH:mm:ss');
+  }
+
+  function getActionMap() {
+    return actionMap;
   }
 
   function selectNextAction() {
     // randomly select action: http://stackoverflow.com/a/4550514
-    var o = actionQueue[Math.floor(Math.random() * actionQueue.length)];
-    actionQueue.length = 0;
-    return o;
+    var selectedUser, selectedAction;
+
+    if (activeUsers.length > 0) {
+      selectedUser   = activeUsers[Math.floor(Math.random() * activeUsers.length)];
+      selectedAction = actionMap[selectedUser.username];
+    }
+
+    if (selectedAction) {
+      selectedAction = Object.assign({}, selectedAction);
+    }
+
+    if (selectedAction && selectedAction.username === 'ericrsteele') {
+      var x = 0;
+    }
+
+    reset();
+
+    return selectedAction;
   }
 
   function getNextAction() {
     var o = selectNextAction();
     if (o) {
       EventLogger.actionSelected(o.user, o.action);
-      TwitchChat.update(o.channel, o.user, o.action);
       return o;
     }
   }
 
   function handleChat(channel, user, message, isBot) {
     if (!isBot) {
-      message = message.trim();
-      var action = inputMap[message.toUpperCase()];
+      var action = inputMap[message.trim().toUpperCase()];
       if (action) {
-        // Notify server of action submission
         EventLogger.actionSubmitted(user, action);
-        // Add action to queue
-        var now = new moment();
-        actionQueue.push({
-          action:    action, 
-          channel:   channel,
-          message:   message, 
-          user:      user, 
-          timestamp: now.format('HH:mm:ss')
-        });
+        setUserAction(channel, user, action);
       }
     }
   }
 
   function join(channel, username) {
-    // TODO: User has joined the channel
-    // users.push({
-    //   username: username,
-    //   ...
-    // });
+    // No longer used to detect active users
+    // Users become active when they first input a command
   }
 
   function part(channel, username) {
-    // TODO: User has left the channel 
+    for (var i = 0, len = activeUsers.length; i < len; i++) {
+      var user = activeUsers[i];
+      if (user.username === username) {
+        inactiveUsers.push(user);
+        activeUsers.splice(i, 1);
+        delete actionMap[username];
+        return;
+      }
+    }
   }
 
 })();

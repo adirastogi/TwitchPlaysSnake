@@ -74,6 +74,14 @@ $(document).ready(function() {
     // Repeat previous action if no action was submitted by users
     if (!o) o = { user: { username: 'SnakeGame' }, action: direction };
 
+    // If user did not provide input, continue in the same direction
+    if (!o.action) o.action = direction;
+
+    // Update chat
+    if (o.user.username !== 'SnakeGame') {
+      TwitchChat.update(o.channel, o.user, o.action);
+    }
+
     // Set snake direction
     setDirection(o.action);
     EventLogger.actionExecuted(o.user, o.action);
