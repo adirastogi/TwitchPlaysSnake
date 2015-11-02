@@ -41,7 +41,16 @@ var TwitchPlaysSnake = (function () {
     }
   }
 
-  function addUser(user) {
+  function isActiveUser(user) {
+    for (var i = 0, len = activeUsers.length; i < len; i++) {
+      if (activeUsers[i].username === user.username) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function activateUser(user) {
     if (!actionMap[user.username]) {
       actionMap[user.username] = {};
     }
@@ -64,7 +73,7 @@ var TwitchPlaysSnake = (function () {
   }
 
   function setUserAction(channel, user, action) {
-    addUser(user);
+    if (!isActiveUser(user)) activateUser(user);
     actionMap[user.username].action    = action;
     actionMap[user.username].channel   = channel;
     actionMap[user.username].user      = user;
