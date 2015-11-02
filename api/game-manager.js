@@ -70,9 +70,9 @@ function endGame(results) {
 
 function generateSummary() {
   var table = new Table({ head: eventFieldNames, colWidths: [20, 20, 10, 25] });
-  for (let event of gameEvents) {
+  gameEvents.forEach(function (event) {
     table.push([event.event, event.user || '', event.value || '', event.time]);
-  }
+  });
   return table.toString();
 }
 
@@ -80,14 +80,14 @@ function validateEvents(events) {
   if(!Array.isArray(events)) {
     throw new Error('Body must be an array of events');
   }  
-  for (let event of events) {
+  events.forEach(function (event) {
     if (!event.event) {
       throw new Error('Event must must contain "event" property');
     }
     if (!event.time) {
       throw new Error('Event must must contain "time" property');
     }
-  }
+  });
 }
 
 function validateGameSettings(settings) {
