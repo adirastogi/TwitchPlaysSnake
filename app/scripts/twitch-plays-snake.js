@@ -97,10 +97,6 @@ var TwitchPlaysSnake = (function () {
       selectedAction = Object.assign({}, selectedAction);
     }
 
-    if (selectedAction && selectedAction.username === 'ericrsteele') {
-      var x = 0;
-    }
-
     reset();
 
     return selectedAction;
