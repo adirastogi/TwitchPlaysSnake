@@ -150,7 +150,7 @@ $(document).ready(function() {
     if(checkFoodCollision(pos)) {
       // Decrease TPS of o.user
       // Decrease TPS of all users if no action was submitted
-      // TwitchPlaysSnake.incrementPositiveAction(o.user.username, 1);
+      TwitchPlaysSnake.incrementPositiveAction(o.user.username, 1);
       // TODO: need to getting the whole action queue, and decide how to increament the action
       EventLogger.appleCollected(o.user);
       var tail = {x: pos.x, y: pos.y};

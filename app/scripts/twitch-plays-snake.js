@@ -57,7 +57,9 @@ var TwitchPlaysSnake = (function () {
 
   function activateUser(user) {
     if (!actionMap[user.username]) {
-      actionMap[user.username] = {};
+      user.maliciousAction = 0;
+      user.positiveAction = 0;
+      actionMap[user.username] = {user:user};
     }
 
     for (var i = 0, len = inactiveUsers.length; i < len; i++) {
@@ -68,20 +70,13 @@ var TwitchPlaysSnake = (function () {
         return;
       }
     }
-    
-    activeUsers.push({
-      username:         user.username,
-      maliciousAction:  0,
-      positiveAction:   0,
-      TPS:              0.25
-    });
+    activeUsers.push(actionMap[user.username].user);
   }
 
   function setUserAction(channel, user, action) {
     if (!isActiveUser(user)) activateUser(user);
     actionMap[user.username].action    = action;
     actionMap[user.username].channel   = channel;
-    actionMap[user.username].user      = user;
     actionMap[user.username].timestamp = new moment().format('HH:mm:ss');
   }
 
@@ -90,20 +85,22 @@ var TwitchPlaysSnake = (function () {
   }
 
   function selectWeightedNextAction() {
+    if(Object.keys(actionMap).length==0)
+      return undefined;
     var probabilities = [];
     var totalTPS = 0;
     for(var username in actionMap) {
       if(actionMap.hasOwnProperty(username)){
         var user = actionMap[username].user;
-        totalTPS +=  (2.5 + user.maliciousAction) / (10 + user.positiveAction);
+        totalTPS +=  (1-((2.5 + user.maliciousAction) / (10 + user.positiveAction+user.maliciousAction)));
       }
     }
     // create the array with the normalized selection probabilities
     for(var username in actionMap) {
       if(actionMap.hasOwnProperty(username)){
         var user = actionMap[username].user;
-        userTPS = (2.5 + user.maliciousAction) / (10 + user.positiveAction);
-        prob = 1 - (userTPS/totalTPS);
+        var userTPS = 1-((2.5 + user.maliciousAction) / (10 + user.positiveAction+user.maliciousAction));
+        var prob = (userTPS/totalTPS);
         probabilities.push({
           username : user.username,
           probability : prob
@@ -119,39 +116,31 @@ var TwitchPlaysSnake = (function () {
       }
     }
     var selectedUsername = probabilities[i].username;
-    return actionMap[selectedUsername].action;
+    return actionMap[selectedUsername];
   }
 
   function selectRandomNextAction() {
     // randomly select action: http://stackoverflow.com/a/4550514
     var selectedUser, selectedAction;
-    console.log(activeUsers);
     if (activeUsers.length > 0) {
       selectedUser   = activeUsers[Math.floor(Math.random() * activeUsers.length)];
       selectedAction = actionMap[selectedUser.username];
     }
-
-    if (selectedAction) {
-      selectedAction = Object.assign({}, selectedAction);
-    }
-
-    if (selectedAction && selectedAction.username === 'ericrsteele') {
-      var x = 0;
-    }
-
-    reset();
-
     return selectedAction;
   }
 
   function selectNextAction() {
+    var selectedAction;
     if(trollSubversion) {
-      return selectWeightedNextAction();
+      selectedAction =  selectWeightedNextAction();
     } else {
-      var action =  selectRandomNextAction();
-      console.log(action);
-      return action;
+      selectedAction =  selectRandomNextAction();
     }
+    if (selectedAction) {
+      selectedAction = Object.assign({}, selectedAction);
+    }
+    reset();
+    return selectedAction;
   }
 
   function getNextAction() {
