@@ -56,7 +56,7 @@
           TwitchClient.emit('message', channel, user, 'up', false);
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('UP');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -64,7 +64,7 @@
           TwitchClient.emit('message', channel, user, 'UP');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('UP');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -72,7 +72,7 @@
           TwitchClient.emit('message', channel, user, 'w');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('UP');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
       
@@ -80,7 +80,7 @@
           TwitchClient.emit('message', channel, user, ' up ');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('UP');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -88,7 +88,7 @@
           TwitchClient.emit('message', channel, user, ' UP ');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('UP');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -96,7 +96,7 @@
           TwitchClient.emit('message', channel, user, ' w ');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('UP');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -108,7 +108,7 @@
           TwitchClient.emit('message', channel, user, 'down');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('DOWN');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -116,7 +116,7 @@
           TwitchClient.emit('message', channel, user, 'DOWN');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('DOWN');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -124,7 +124,7 @@
           TwitchClient.emit('message', channel, user, 's');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('DOWN');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -132,7 +132,7 @@
           TwitchClient.emit('message', channel, user, ' down ');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('DOWN');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -140,7 +140,7 @@
           TwitchClient.emit('message', channel, user, ' DOWN ');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('DOWN');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -148,7 +148,7 @@
           TwitchClient.emit('message', channel, user, ' s ');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('DOWN');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -160,7 +160,7 @@
           TwitchClient.emit('message', channel, user, 'left');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('LEFT');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -168,7 +168,7 @@
           TwitchClient.emit('message', channel, user, 'LEFT');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('LEFT');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -176,7 +176,7 @@
           TwitchClient.emit('message', channel, user, 'a');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('LEFT');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -184,7 +184,7 @@
           TwitchClient.emit('message', channel, user, ' left ');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('LEFT');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -192,7 +192,7 @@
           TwitchClient.emit('message', channel, user, ' LEFT ');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('LEFT');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -200,7 +200,7 @@
           TwitchClient.emit('message', channel, user, ' a ');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('LEFT');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -213,7 +213,7 @@
           TwitchClient.emit('message', channel, user, 'right');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('RIGHT');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -221,7 +221,7 @@
           TwitchClient.emit('message', channel, user, 'RIGHT');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('RIGHT');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -229,7 +229,7 @@
           TwitchClient.emit('message', channel, user, 'd');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('RIGHT');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -237,7 +237,7 @@
           TwitchClient.emit('message', channel, user, ' right ');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('RIGHT');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -245,7 +245,7 @@
           TwitchClient.emit('message', channel, user, ' RIGHT ');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('RIGHT');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
@@ -253,7 +253,7 @@
           TwitchClient.emit('message', channel, user, ' d ');
           var userAction = actionMap[user.username];
           expect(userAction.action).to.equal('RIGHT');
-          expect(userAction.username).to.deep.equal(user.username);
+          expect(userAction.user).to.deep.equal(user);
           expect(userAction.timestamp).to.exist;
         });
 
