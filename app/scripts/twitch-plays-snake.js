@@ -139,6 +139,7 @@ var TwitchPlaysSnake = (function () {
     if (selectedAction) {
       selectedAction = Object.assign({}, selectedAction);
     }
+
     reset();
     return selectedAction;
   }
