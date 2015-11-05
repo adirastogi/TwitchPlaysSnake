@@ -28,6 +28,9 @@ var TwitchPlaysSnake = (function () {
     'S':     'DOWN'
   };
 
+  // boolean to indicate if the troll subversion is enabled
+  var trollSubversion = false;
+
   return {
     getActionQueue: getActionQueue,
     getNextAction:  getNextAction,
@@ -45,11 +48,43 @@ var TwitchPlaysSnake = (function () {
     return actionQueue;
   }
 
-  function selectNextAction() {
+  function selectWeightedNextAction() {
+    var probabilities = [];
+    var totalTPS = 0;
+    for(var action in actionQueue) {
+      totalTPS +=  (2.5 + action.user.maliciousAction) / (10 + action.user.positiveAction);
+    }
+    // create the array with the normalized selection probabilities
+    for(var action in actionQueue) {
+      userTPS = (2.5 + action.user.maliciousAction) / (10 + action.user.positiveAction);
+      prob = 1 - (userTPS/totalTPS);
+      probabilities.push(prob);
+    }
+    // now sample from the array using the probabilities
+    var cumulativeProb = 0;
+    var i=0;
+    for(; i<probabilities.length; ++i) {
+      cumProb = cumProb + prob;
+      if(cumProb > Math.random()) {
+        break;
+      }
+    }
+    return actionQueue[i];
+  }
+
+  function selectRandomNextAction() {
     // randomly select action: http://stackoverflow.com/a/4550514
     var o = actionQueue[Math.floor(Math.random() * actionQueue.length)];
     actionQueue.length = 0;
     return o;
+  }
+
+  function selectNextAction() {
+    if(trollSubversion) {
+      return selectWeightedNextAction();
+    } else {
+      return selectRandomNextAction();
+    }
   }
 
   function getNextAction() {
