@@ -25,15 +25,17 @@ var TwitchPlaysSnake = (function () {
   };
 
   // boolean to indicate if the troll subversion is enabled
-  var trollSubversion = false;
+  var trollSubversion = true;
 
   return {
-    getActionMap: getActionMap,
-    getNextAction:  getNextAction,
-    join:           join,
-    handleChat:     handleChat,
-    part:           part,
-    reset:          reset
+    getActionMap:           getActionMap,
+    getNextAction:            getNextAction,
+    join:                     join,
+    handleChat:               handleChat,
+    part:                     part,
+    reset:                    reset,
+    incrementMaliciousAction: incrementMaliciousAction,
+    incrementPositiveAction:  incrementPositiveAction
   };
 
   function reset() {
@@ -66,7 +68,7 @@ var TwitchPlaysSnake = (function () {
         return;
       }
     }
-
+    
     activeUsers.push({
       username:         user.username,
       maliciousAction:  0,
@@ -90,31 +92,40 @@ var TwitchPlaysSnake = (function () {
   function selectWeightedNextAction() {
     var probabilities = [];
     var totalTPS = 0;
-    for(var action in actionQueue) {
-      totalTPS +=  (2.5 + action.user.maliciousAction) / (10 + action.user.positiveAction);
+    for(var username in actionMap) {
+      if(actionMap.hasOwnProperty(username)){
+        var user = actionMap[username].user;
+        totalTPS +=  (2.5 + user.maliciousAction) / (10 + user.positiveAction);
+      }
     }
     // create the array with the normalized selection probabilities
-    for(var action in actionQueue) {
-      userTPS = (2.5 + action.user.maliciousAction) / (10 + action.user.positiveAction);
-      prob = 1 - (userTPS/totalTPS);
-      probabilities.push(prob);
+    for(var username in actionMap) {
+      if(actionMap.hasOwnProperty(username)){
+        var user = actionMap[username].user;
+        userTPS = (2.5 + user.maliciousAction) / (10 + user.positiveAction);
+        prob = 1 - (userTPS/totalTPS);
+        probabilities.push({
+          username : user.username,
+          probability : prob
+        });
+      }
     }
     // now sample from the array using the probabilities
-    var cumulativeProb = 0;
-    var i=0;
-    for(; i<probabilities.length; ++i) {
-      cumProb = cumProb + prob;
+    var cumProb = 0;
+    for(var i=0; i<probabilities.length; i++) {
+      cumProb = cumProb + probabilities[i].probability;
       if(cumProb > Math.random()) {
         break;
       }
     }
-    return actionQueue[i];
+    var selectedUsername = probabilities[i].username;
+    return actionMap[selectedUsername].action;
   }
 
   function selectRandomNextAction() {
     // randomly select action: http://stackoverflow.com/a/4550514
     var selectedUser, selectedAction;
-
+    console.log(activeUsers);
     if (activeUsers.length > 0) {
       selectedUser   = activeUsers[Math.floor(Math.random() * activeUsers.length)];
       selectedAction = actionMap[selectedUser.username];
@@ -137,7 +148,9 @@ var TwitchPlaysSnake = (function () {
     if(trollSubversion) {
       return selectWeightedNextAction();
     } else {
-      return selectRandomNextAction();
+      var action =  selectRandomNextAction();
+      console.log(action);
+      return action;
     }
   }
 
@@ -173,7 +186,27 @@ var TwitchPlaysSnake = (function () {
         delete actionMap[username];
         return;
       }
-    }
+    } // end of the activeUsers loop
+  }
+
+  function incrementMaliciousAction(username, num) {
+    for (var i=0; i<activeUsers.length; i++){
+      var user = activeUsers[i];
+      if(user.username === username){
+        activeUsers[i].maliciousAction += num;
+        return;
+      }
+    } // end of the activeUsers loop
+  }
+
+  function incrementPositiveAction(username, num) {
+     for (var i=0;i<activeUsers.length;i++){
+      var user = activeUsers[i];
+      if(user.username === username){
+        activeUsers[i].positiveAction += num;
+        return;
+      }
+    } // end of the activeUsers loop
   }
 
 })();

@@ -94,7 +94,8 @@ $(document).ready(function() {
 
     // Detect avoided collision with apple
     if(checkFoodCollision(avoidedPos) && !checkFoodCollision(pos)) {
-      // TODO: Decrease TPS of o.user
+      // Increase TPS of o.user
+      TwitchPlaysSnake.incrementMaliciousAction(o.user.username, 1);
       EventLogger.appleAvoided(o.user);
     }
 
@@ -115,7 +116,8 @@ $(document).ready(function() {
 
     // Restart game if collision took place
     if(collision) {
-      // TODO: increase TPS of o.user
+      // increase TPS of o.user
+      TwitchPlaysSnake.incrementMaliciousAction(o.user.username, 1);
       EventLogger.gameEnd().then(function () {
         init();
       });
@@ -139,14 +141,17 @@ $(document).ready(function() {
 
     if(collisionAvoided) {
       // TODO: Decrease TPS of o.user
+      TwitchPlaysSnake.incrementPositiveAction(o.user.username, 1);
     }
     
     // Code to make the snake eat the food
     // If the new head position matches with that of the food,
     // create a new head instead of moving the tail
     if(checkFoodCollision(pos)) {
-      // TODO: Decrease TPS of o.user
-      // TODO: Decrease TPS of all users if no action was submitted
+      // Decrease TPS of o.user
+      // Decrease TPS of all users if no action was submitted
+      // TwitchPlaysSnake.incrementPositiveAction(o.user.username, 1);
+      // TODO: need to getting the whole action queue, and decide how to increament the action
       EventLogger.appleCollected(o.user);
       var tail = {x: pos.x, y: pos.y};
       score++;
