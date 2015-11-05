@@ -2,15 +2,15 @@
 
 var TwitchChat = (function () {
 
-  var fadeDelay             = 5000, // Set to false to disable chat fade
-      showChannel           = true, // Show repespective channels if the channels is longer than 1
-      useColor              = true, // Use chatters' colors or to inherit
-      showBadges            = true, // Show chatters' badges
-      showEmotes            = true, // Show emotes in the chat
-      doTimeouts            = true, // Hide the messages of people who are timed-out
-      doChatClears          = true, // Hide the chat from an entire channel
-      showHosting           = true, // Show when the channel is hosting or not
-      showConnectionNotices = true; // Show messages like "Connected" and "Disconnected"
+  var fadeDelay             = 5000,  // Set to false to disable chat fade
+      showChannel           = true,  // Show repespective channels if the channels is longer than 1
+      useColor              = true,  // Use chatters' colors or to inherit
+      showBadges            = true,  // Show chatters' badges
+      showEmotes            = false, // Show emotes in the chat
+      doTimeouts            = true,  // Hide the messages of people who are timed-out
+      doChatClears          = true,  // Hide the chat from an entire channel
+      showHosting           = true,  // Show when the channel is hosting or not
+      showConnectionNotices = true;  // Show messages like "Connected" and "Disconnected"
 
   var chat = document.getElementById('chat');
 
