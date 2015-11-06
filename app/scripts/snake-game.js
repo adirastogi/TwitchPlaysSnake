@@ -54,11 +54,11 @@ $(document).ready(function() {
   }
   
   function createSnake() {
-    var snakeLength = 3;
+    var snakeLength = 2;
     snakeArray = [];
-    // Create a horizontal snake starting from the top left
+    // Create a horizontal snake
     for(var i = snakeLength-1; i >= 0; i--) {
-      snakeArray.push({x: i, y: 1});
+      snakeArray.push({x: i, y: 2});
     }
   }
   
