@@ -85,8 +85,9 @@ var TwitchPlaysSnake = (function () {
   }
 
   function selectWeightedNextAction() {
-    if(Object.keys(actionMap).length==0)
+    if(Object.keys(actionMap).length === 0) {
       return undefined;
+    }
     var probabilities = [];
     var totalTPS = 0;
     for(var username in actionMap) {
@@ -97,7 +98,7 @@ var TwitchPlaysSnake = (function () {
     }
     // create the array with the normalized selection probabilities
     for(var username in actionMap) {
-      if(actionMap.hasOwnProperty(username)){
+      if(actionMap.hasOwnProperty(username)) {
         var user = actionMap[username].user;
         var userTPS = 1-((2.5 + user.maliciousAction) / (10 + user.positiveAction+user.maliciousAction));
         var prob = (userTPS/totalTPS);
@@ -176,7 +177,7 @@ var TwitchPlaysSnake = (function () {
         delete actionMap[username];
         return;
       }
-    } // end of the activeUsers loop
+    }
   }
 
   function incrementMaliciousAction(username, num) {
@@ -186,7 +187,7 @@ var TwitchPlaysSnake = (function () {
         activeUsers[i].maliciousAction += num;
         return;
       }
-    } // end of the activeUsers loop
+    }
   }
 
   function incrementPositiveAction(username, num) {
@@ -196,7 +197,7 @@ var TwitchPlaysSnake = (function () {
         activeUsers[i].positiveAction += num;
         return;
       }
-    } // end of the activeUsers loop
+    }
   }
 
 })();
