@@ -260,18 +260,18 @@ $(document).ready(function() {
   }
 
   function paintGameOverText() {
-    ctx.fillStyle = 'black';
-    ctx.font = '60px Helvetica Neue';
+    ctx.fillStyle    = 'black';
+    ctx.font         = '60px Helvetica Neue';
     var gameOverText = 'GAME OVER';
     var gameOverDim  = ctx.measureText(gameOverText);
     ctx.fillText(gameOverText, w/2-gameOverDim.width/2, h/2);
   }
 
   function paintFinalScoreText() {
-    ctx.fillStyle = 'black';
-    ctx.font = '40px Helvetica Neue';
-    var finalScoreText  = 'Final Score: ' + score;
-    var finalScoreDim = ctx.measureText(finalScoreText);
+    ctx.fillStyle      = 'black';
+    ctx.font           = '40px Helvetica Neue';
+    var finalScoreText = 'Final Score: ' + score;
+    var finalScoreDim  = ctx.measureText(finalScoreText);
     ctx.fillText(finalScoreText, w/2-finalScoreDim.width/2, h/2+50);
   }
   
