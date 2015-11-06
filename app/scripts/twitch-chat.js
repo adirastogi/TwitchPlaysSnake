@@ -189,12 +189,13 @@ var TwitchChat = (function () {
         chatLine.dataset.faded = '';
       }, fadeDelay);
     }
-    
-    if(chat.children.length > 50) {
-      var oldMessages = [].slice.call(chat.children).slice(0, 10);
-      for(var i in oldMessages) oldMessages[i].remove();
-    }
-    
+
+    var chatBottom = chat.getBoundingClientRect().bottom;
+    while (true) {
+      var msgBottom = chat.children[chat.children.length-1].getBoundingClientRect().bottom;
+      if(msgBottom < chatBottom) break;
+      chat.children[0].remove();
+    }    
   }
 
   function chatNotice(information, noticeFadeDelay, level, additionalClasses) {

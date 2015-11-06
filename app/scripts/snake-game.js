@@ -8,9 +8,14 @@ $(document).ready(function() {
   var ctx = canvas.getContext('2d');
   var w = $('#canvas').width();
   var h = $('#canvas').height();
+
+  // Colors
+  var snakeBodyColor = 'darkcyan';
+  var snakeHeadColor = '#077676';
   
-  // Save the cell width in a variable for easy control
-  var cellWidth = 50;
+  // Game state
+  var cellWidth = 75;
+  var gameLoopPeriod = 1500;
   var direction, prevDirection;
   var food;
   var score;
@@ -34,7 +39,7 @@ $(document).ready(function() {
   function init() {
     EventLogger.gameStart().then(function () {
       direction = prevDirection = 'RIGHT';
-      ctx.font = '30px Helvetica Neue'; // score font
+      ctx.font = '40px Helvetica Neue'; // score font
       createSnake();
       createFood();
       score = 0;
@@ -44,7 +49,7 @@ $(document).ready(function() {
         clearInterval(gameLoopIntervalId);
       }
 
-      gameLoopIntervalId = setInterval(gameLoop, 1000);
+      gameLoopIntervalId = setInterval(gameLoop, gameLoopPeriod);
     });
   }
   
@@ -197,14 +202,24 @@ $(document).ready(function() {
   }
 
   function paintSnake() {
-    for(var i = 0; i < snakeArray.length; i++) {
+    paintSnakeHead();
+    paintSnakeBody();
+  }
+
+  function paintSnakeHead() {
+    var headCell = snakeArray[0];
+    paintCell(headCell.x, headCell.y, snakeHeadColor);
+  }
+
+  function paintSnakeBody() {
+    for(var i = 1; i < snakeArray.length; i++) {
       var c = snakeArray[i];
-      paintCell(c.x, c.y);
+      paintCell(c.x, c.y, snakeBodyColor);
     }
   }
   
   function paintCell(x, y, color) {
-    if (!color) color = 'blue';
+    if (!color) color = snakeBodyColor;
     ctx.fillStyle = color;
     ctx.fillRect(x*cellWidth, y*cellWidth, cellWidth, cellWidth);
     ctx.strokeStyle = 'white';
