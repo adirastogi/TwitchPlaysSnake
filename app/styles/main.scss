@@ -55,17 +55,26 @@ body {
 }
 
 .jumbotron {
-  display: flex;
-  justify-content: center;
   border-bottom: 1px solid #e5e5e5;
+  padding-bottom: 20px;
   .btn {
     font-size: 21px;
     padding: 14px 24px;
   }
 }
 
-#canvas {
-  float: left;
+.game-content,
+.game-controls {
+  display: flex;
+  justify-content: center; 
+}
+
+.game-controls {
+  margin-top: 20px;
+}
+
+.game-controls .btn {
+  margin-left: 10px;
 }
 
 /* Responsive: Portrait tablets and up */

@@ -20,12 +20,13 @@ $(document).ready(function() {
   var food;
   var score;
   var gameLoopIntervalId;
-  
+  var gameState = 'stopped';
+
   // An array of cells to make up the snake
-  var snakeArray; 
-  
-  // Start the game
-  init();
+  var snakeArray;
+
+  // Paint empty game field
+  paintBackground();
 
   // Add the keyboard controls
   $(document).keydown(function(e) {
@@ -36,21 +37,56 @@ $(document).ready(function() {
     else if(key === 40) setDirection('DOWN');
   });
 
-  function init() {
-    EventLogger.gameStart().then(function () {
-      direction = prevDirection = 'RIGHT';
-      ctx.font = '40px Helvetica Neue'; // score font
-      createSnake();
-      createFood();
-      score = 0;
-      
-      // Move the snake now using a timer which will trigger the gameLoop function every 60ms
+  // Add button click handlers
+  $('#startGame').click(startGame);
+  $('#stopGame').click(stopGame);
+  $('#togglePause').click(togglePause);
+
+  function startGame() {
+    if (gameState === 'stopped') {
+      gameState = 'running';
+      EventLogger.gameStart().then(function () {
+        direction = prevDirection = 'RIGHT';
+        createSnake();
+        createFood();
+        score = 0;
+        
+        if(typeof gameLoopIntervalId !== 'undefined') { 
+          clearInterval(gameLoopIntervalId);
+        }
+
+        gameLoopIntervalId = setInterval(gameLoop, gameLoopPeriod);
+      });
+    }
+  }
+
+  function stopGame() {
+    if (gameState !== 'stopped') {
+      if (gameState === 'paused') {
+        $('#togglePause').html('Pause Game');
+      }
+      gameState = 'stopped';
+      EventLogger.gameEnd();
       if(typeof gameLoopIntervalId !== 'undefined') { 
         clearInterval(gameLoopIntervalId);
       }
+      paintGameOver();
+    }
+  }
 
+  function togglePause() {
+    if (gameState === 'running') {
+      gameState = 'paused';
+      if(typeof gameLoopIntervalId !== 'undefined') { 
+        clearInterval(gameLoopIntervalId);
+      }
+      $('#togglePause').html('Resume Game');
+    }
+    else if (gameState === 'paused') {
+      gameState = 'running';
       gameLoopIntervalId = setInterval(gameLoop, gameLoopPeriod);
-    });
+      $('#togglePause').html('Pause Game');
+    }
   }
   
   function createSnake() {
@@ -123,9 +159,7 @@ $(document).ready(function() {
     if(collision) {
       // increase TPS of o.user
       TwitchPlaysSnake.incrementMaliciousAction(o.user.username, 1);
-      EventLogger.gameEnd().then(function () {
-        init();
-      });
+      stopGame();
       return;
     }
 
@@ -196,6 +230,7 @@ $(document).ready(function() {
   }
 
   function paintScore() {
+    ctx.font = '40px Helvetica Neue';
     var scoreText = 'Score: ' + score;
     ctx.fillStyle = 'black';
     ctx.fillText(scoreText, 5, h-5);
@@ -216,6 +251,28 @@ $(document).ready(function() {
       var c = snakeArray[i];
       paintCell(c.x, c.y, snakeBodyColor);
     }
+  }
+
+  function paintGameOver() {
+    paintBackground();
+    paintGameOverText();
+    paintFinalScoreText();
+  }
+
+  function paintGameOverText() {
+    ctx.fillStyle = 'black';
+    ctx.font = '60px Helvetica Neue';
+    var gameOverText = 'GAME OVER';
+    var gameOverDim  = ctx.measureText(gameOverText);
+    ctx.fillText(gameOverText, w/2-gameOverDim.width/2, h/2);
+  }
+
+  function paintFinalScoreText() {
+    ctx.fillStyle = 'black';
+    ctx.font = '40px Helvetica Neue';
+    var finalScoreText  = 'Final Score: ' + score;
+    var finalScoreDim = ctx.measureText(finalScoreText);
+    ctx.fillText(finalScoreText, w/2-finalScoreDim.width/2, h/2+50);
   }
   
   function paintCell(x, y, color) {
