@@ -57,6 +57,7 @@ $(document).ready(function() {
         }
 
         gameLoopIntervalId = setInterval(gameLoop, gameLoopPeriod);
+        TwitchPlaysSnake.clearPlayerActions();
       });
     }
   }
