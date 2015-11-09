@@ -27,18 +27,34 @@ var TwitchPlaysSnake = (function () {
   // boolean to indicate if the troll subversion is enabled
   var trollSubversion = true;
 
+  // setup button click handler
+  $('#resetPlayerTPS').click(resetPlayerTPS);
+
   return {
-    getActionMap:           getActionMap,
+    getActionMap:             getActionMap,
+    getActiveUsers:           getActiveUsers,
     getNextAction:            getNextAction,
     join:                     join,
     handleChat:               handleChat,
     part:                     part,
-    reset:                    reset,
+    clearPlayerActions:       clearPlayerActions,
     incrementMaliciousAction: incrementMaliciousAction,
-    incrementPositiveAction:  incrementPositiveAction
+    incrementPositiveAction:  incrementPositiveAction,
+    resetPlayerTPS:           resetPlayerTPS
   };
 
-  function reset() {
+  function resetPlayerTPS() {
+    for (var i = 0, len = activeUsers.length; i < len; i++) {
+      activeUsers[i].maliciousAction = 0;
+      activeUsers[i].positiveAction = 0;
+    }
+    for (i = 0, len = inactiveUsers.length; i < len; i++) {
+      inactiveUsers[i].maliciousAction = 0;
+      inactiveUsers[i].positiveAction = 0;
+    }
+  }
+
+  function clearPlayerActions() {
     for (var username in actionMap) {
       if (actionMap.hasOwnProperty(username)) {
         actionMap[username].action = null;
@@ -55,12 +71,19 @@ var TwitchPlaysSnake = (function () {
     return false;
   }
 
+  function getActiveUsers() {
+    return activeUsers;
+  }
+
   function activateUser(user) {
     if (!actionMap[user.username]) {
       user.maliciousAction = 0;
       user.positiveAction = 0;
-      actionMap[user.username] = {user:user};
+      user.tps = calculateTPS(user);
+      actionMap[user.username] = {user: user};
     }
+
+    EventLogger.userActivated(user);
 
     for (var i = 0, len = inactiveUsers.length; i < len; i++) {
       var inactiveUser = inactiveUsers[i];
@@ -70,13 +93,14 @@ var TwitchPlaysSnake = (function () {
         return;
       }
     }
+
     activeUsers.push(actionMap[user.username].user);
   }
 
   function setUserAction(channel, user, action) {
     if (!isActiveUser(user)) activateUser(user);
-    actionMap[user.username].action    = action;
-    actionMap[user.username].channel   = channel;
+    actionMap[user.username].action = action;
+    actionMap[user.username].channel = channel;
     actionMap[user.username].timestamp = new moment().format('HH:mm:ss');
   }
 
@@ -85,46 +109,61 @@ var TwitchPlaysSnake = (function () {
   }
 
   function selectWeightedNextAction() {
-    if(Object.keys(actionMap).length === 0) {
+    if (Object.keys(actionMap).length === 0) {
       return undefined;
     }
+
     var probabilities = [];
-    var totalTPS = 0;
-    for(var username in actionMap) {
-      if(actionMap.hasOwnProperty(username)){
-        var user = actionMap[username].user;
-        totalTPS +=  (1-((2.5 + user.maliciousAction) / (10 + user.positiveAction+user.maliciousAction)));
-      }
-    }
+    var totalProbability = calculateTotalSelectionProbability();
     // create the array with the normalized selection probabilities
-    for(var username in actionMap) {
-      if(actionMap.hasOwnProperty(username)) {
+    for (var username in actionMap) {
+      if (actionMap.hasOwnProperty(username)) {
         var user = actionMap[username].user;
-        var userTPS = 1-((2.5 + user.maliciousAction) / (10 + user.positiveAction+user.maliciousAction));
-        var prob = (userTPS/totalTPS);
         probabilities.push({
-          username : user.username,
-          probability : prob
+          username:    user.username,
+          probability: calculateUserSelectionProbability(user, totalProbability)
         });
       }
     }
+
     // now sample from the array using the probabilities
     var cumProb = 0;
-    for(var i=0; i<probabilities.length; i++) {
+    for (var i = 0; i < probabilities.length; i++) {
       cumProb = cumProb + probabilities[i].probability;
-      if(cumProb > Math.random()) {
+      if (cumProb > Math.random()) {
         break;
       }
     }
-    var selectedUsername = probabilities[i].username;
-    return actionMap[selectedUsername];
+
+    return actionMap[probabilities[i].username];
+  }
+
+  function calculateTotalSelectionProbability() {
+    var p = 0;
+
+    for (var username in actionMap) {
+      if (actionMap.hasOwnProperty(username)) {
+        var user = actionMap[username].user;
+        p += 1 - calculateTPS(user);
+      }
+    }
+
+    return p;
+  }
+
+  function calculateUserSelectionProbability(user, totalProbability) {
+    return (1 - calculateTPS(user)) / totalProbability;
+  }
+
+  function calculateTPS(user) {
+    return (1 + user.maliciousAction) / (2 + user.positiveAction + user.maliciousAction);
   }
 
   function selectRandomNextAction() {
     // randomly select action: http://stackoverflow.com/a/4550514
     var selectedUser, selectedAction;
     if (activeUsers.length > 0) {
-      selectedUser   = activeUsers[Math.floor(Math.random() * activeUsers.length)];
+      selectedUser = activeUsers[Math.floor(Math.random() * activeUsers.length)];
       selectedAction = actionMap[selectedUser.username];
     }
     return selectedAction;
@@ -132,23 +171,23 @@ var TwitchPlaysSnake = (function () {
 
   function selectNextAction() {
     var selectedAction;
-    if(trollSubversion) {
-      selectedAction =  selectWeightedNextAction();
+    if (trollSubversion) {
+      selectedAction = selectWeightedNextAction();
     } else {
-      selectedAction =  selectRandomNextAction();
+      selectedAction = selectRandomNextAction();
     }
     if (selectedAction) {
       selectedAction = Object.assign({}, selectedAction);
     }
 
-    reset();
+    clearPlayerActions();
     return selectedAction;
   }
 
   function getNextAction() {
     var o = selectNextAction();
     if (o) {
-      EventLogger.actionSelected(o.user, o.action);
+      // EventLogger.actionSelected(o.user, o.action);
       return o;
     }
   }
@@ -157,8 +196,8 @@ var TwitchPlaysSnake = (function () {
     if (!isBot) {
       var action = inputMap[message.trim().toUpperCase()];
       if (action) {
-        EventLogger.actionSubmitted(user, action);
         setUserAction(channel, user, action);
+        EventLogger.actionSubmitted(user, action);
       }
     }
   }
@@ -181,21 +220,29 @@ var TwitchPlaysSnake = (function () {
   }
 
   function incrementMaliciousAction(username, num) {
-    for (var i=0; i<activeUsers.length; i++){
-      var user = activeUsers[i];
-      if(user.username === username){
-        activeUsers[i].maliciousAction += num;
-        return;
+    if (username !== 'SnakeGame') {
+      for (var i = 0; i < activeUsers.length; i++) {
+        var user = activeUsers[i];
+        if (user.username === username) {
+          activeUsers[i].maliciousAction += num;
+          activeUsers[i].tps = Math.round(calculateTPS(activeUsers[i]) * 100) / 100;
+          EventLogger.tpsUpdate(user, activeUsers[i].tps);
+          return;
+        }
       }
     }
   }
 
   function incrementPositiveAction(username, num) {
-     for (var i=0;i<activeUsers.length;i++){
-      var user = activeUsers[i];
-      if(user.username === username){
-        activeUsers[i].positiveAction += num;
-        return;
+    if (username !== 'SnakeGame') {
+      for (var i = 0; i < activeUsers.length; i++) {
+        var user = activeUsers[i];
+        if (user.username === username) {
+          activeUsers[i].positiveAction += num;
+          activeUsers[i].tps = Math.round(calculateTPS(activeUsers[i]) * 100) / 100;
+          EventLogger.tpsUpdate(user, activeUsers[i].tps);
+          return;
+        }
       }
     }
   }

@@ -1,35 +1,6 @@
 /* global moment, $ */
 'use strict';
 
-// GAME OUTPUT EXAMPLE FORMAT
-// +-----------------+---------------+-------+---------------------+
-// | Event           | Player        | Value | Time                |
-// +-----------------+---------------+-------+---------------------+
-// | GAME_START      |               |       | 2015-10-19_11-21-55 |
-// | PLAYER_ACTION   | TwitchUser001 | RIGHT | 2015-10-19_11-21-55 |
-// | PLAYER_ACTION   | TwitchUser002 | RIGHT | 2015-10-19_11-21-55 |
-// | PLAYER_ACTION   | TwitchUser003 | DOWN  | 2015-10-19_11-21-55 |
-// | ACTION_SELECTED | TwitchUser001 | RIGHT | 2015-10-19_11-21-55 |
-// | ACTION_SELECTED | TwitchUser002 | RIGHT | 2015-10-19_11-21-55 |
-// | ACTION_EXECUTED | TwitchUser002 | RIGHT | 2015-10-19_11-21-55 |
-// | APPLE_COLLECTED | TwitchUser002 |       | 2015-10-19_11-21-55 |
-// | TPS_UPDATE      | TwitchUser002 | 0.25  | 2015-10-19_11-21-55 |
-// | PLAYER_ACTION   | TwitchUser003 | LEFT  | 2015-10-19_11-21-55 |
-// | PLAYER_ACTION   | TwitchUser003 | RIGHT | 2015-10-19_11-21-55 |
-// | PLAYER_ACTION   | TwitchUser001 | DOWN  | 2015-10-19_11-21-55 |
-// | PLAYER_ACTION   | TwitchUser002 | DOWN  | 2015-10-19_11-21-55 |
-// | ACTION_SELECTED | TwitchUser002 | UP    | 2015-10-19_11-21-55 |
-// | ACTION_SELECTED | TwitchUser003 | RIGHT | 2015-10-19_11-21-55 |
-// | ACTION_EXECUTED | TwitchUser003 | RIGHT | 2015-10-19_11-21-55 |
-// | APPLE_AVOIDED   | TwitchUser003 |       | 2015-10-19_11-21-55 |
-// | WALL_COLLISION  | TwitchUser003 |       | 2015-10-19_11-21-55 |
-// | TPS_UPDATE      | TwitchUser003 | 0.40  | 2015-10-19_11-21-55 |
-// | GAME_ACTION     | TwitchUser003 | RIGHT | 2015-10-19_11-21-55 |
-// | ACTION_SELECTED | TwitchUser003 | RIGHT | 2015-10-19_11-21-55 |
-// | ACTION_EXECUTED | TwitchUser003 | RIGHT | 2015-10-19_11-21-55 |
-// | GAME_END        |               |       | 2015-10-19_11-21-55 |
-// +-----------------+---------------+-------+---------------------+
-
 var EventLogger = (function () {
 
   var API_SERVER     = 'http://localhost:3000',
@@ -50,9 +21,12 @@ var EventLogger = (function () {
     appleAvoided:    appleAvoided,
     appleCollected:  appleCollected,
     gameEnd:         gameEnd,
+    gamePaused:      gamePaused,
+    gameResumed:     gameResumed,
     gameStart:       gameStart,
     sendEvents:      sendEvents,
     tpsUpdate:       tpsUpdate,
+    userActivated:   userActivated,
     snakeAvoided:    snakeAvoided,
     snakeCollision:  snakeCollision,
     wallAvoided:     wallAvoided,
@@ -60,17 +34,21 @@ var EventLogger = (function () {
   };
 
   function gameStart() {
-    var data = { startTime: new moment().format('YYYY-MM-DD HH:mm:ss') };
+    var data = {startTime: new moment().format('YYYY-MM-DD HH:mm:ss')};
 
     return $.ajax({
-      type:     'POST',
-      url:      GAME_START_URL,
-      data:     JSON.stringify(data)
+      type: 'POST',
+      url:  GAME_START_URL,
+      data: JSON.stringify(data)
     });
   }
 
-  function gameEnd() {
-    var data = { endTime: new moment().format('YYYY-MM-DD HH:mm:ss') };
+  function gameEnd(users, score) {
+    var data = {
+      endTime: new moment().format('YYYY-MM-DD HH:mm:ss'),
+      users:   users || [],
+      score:   score || 0
+    };
 
     return sendEvents().then(function () {
       return $.ajax({
@@ -99,7 +77,7 @@ var EventLogger = (function () {
   function addEvent(event, user, value) {
     events.push({
       event: event,
-      user:  user.username,
+      user:  (user && user.username) || 'SnakeGame',
       value: value,
       time:  new moment().format('YYYY-MM-DD HH:mm:ss')
     });
@@ -125,7 +103,18 @@ var EventLogger = (function () {
     addEvent('APPLE_COLLECTED', user);
   }
 
+  function gamePaused() {
+    addEvent('GAME_PAUSED');
+    sendEvents();
+  }
+
+  function gameResumed() {
+    addEvent('GAME_RESUMED');
+    sendEvents();
+  }
+
   function tpsUpdate(user, tps) {
+    tps = Math.round(tps * 100) / 100;
     addEvent('TPS_UPDATED', user, tps);
   }
 
@@ -135,6 +124,10 @@ var EventLogger = (function () {
 
   function snakeCollision(user) {
     addEvent('SNAKE_COLLISION', user);
+  }
+
+  function userActivated(user) {
+    addEvent('USER_ACTIVATED', user);
   }
 
   function wallAvoided(user) {

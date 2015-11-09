@@ -4,15 +4,16 @@ $(document).ready(function() {
   'use strict';
 
   // Canvas stuff
-  var canvas = $('#canvas')[0];
+  var canvasElement = $('#canvas');
+  var canvas = canvasElement[0];
   var ctx = canvas.getContext('2d');
-  var w = $('#canvas').width();
-  var h = $('#canvas').height();
+  var w = canvasElement.width();
+  var h = canvasElement.height();
 
   // Colors
   var snakeBodyColor = 'darkcyan';
   var snakeHeadColor = '#077676';
-  
+
   // Game state
   var cellWidth = 75;
   var gameLoopPeriod = 1500;
@@ -50,8 +51,8 @@ $(document).ready(function() {
         createSnake();
         createFood();
         score = 0;
-        
-        if(typeof gameLoopIntervalId !== 'undefined') { 
+
+        if(typeof gameLoopIntervalId !== 'undefined') {
           clearInterval(gameLoopIntervalId);
         }
 
@@ -66,29 +67,39 @@ $(document).ready(function() {
         $('#togglePause').html('Pause Game');
       }
       gameState = 'stopped';
-      EventLogger.gameEnd();
-      if(typeof gameLoopIntervalId !== 'undefined') { 
+      if(typeof gameLoopIntervalId !== 'undefined') {
         clearInterval(gameLoopIntervalId);
       }
       paintGameOver();
+      EventLogger.gameEnd(TwitchPlaysSnake.getActiveUsers(), score);
     }
   }
 
   function togglePause() {
     if (gameState === 'running') {
-      gameState = 'paused';
-      if(typeof gameLoopIntervalId !== 'undefined') { 
-        clearInterval(gameLoopIntervalId);
-      }
-      $('#togglePause').html('Resume Game');
+      pauseGame();
     }
     else if (gameState === 'paused') {
-      gameState = 'running';
-      gameLoopIntervalId = setInterval(gameLoop, gameLoopPeriod);
-      $('#togglePause').html('Pause Game');
+      resumeGame()
     }
   }
-  
+
+  function pauseGame() {
+    gameState = 'paused';
+    if(typeof gameLoopIntervalId !== 'undefined') {
+      clearInterval(gameLoopIntervalId);
+    }
+    $('#togglePause').html('Resume Game');
+    EventLogger.gamePaused();
+  }
+
+  function resumeGame() {
+    gameState = 'running';
+    gameLoopIntervalId = setInterval(gameLoop, gameLoopPeriod);
+    $('#togglePause').html('Pause Game');
+    EventLogger.gameResumed();
+  }
+
   function createSnake() {
     var snakeLength = 2;
     snakeArray = [];
@@ -97,17 +108,17 @@ $(document).ready(function() {
       snakeArray.push({x: i, y: 2});
     }
   }
-  
+
   // Create the food now
   function createFood() {
     // This will create a cell with x/y between 0-44
     // Because there are 45(450/10) positions accross the rows and columns
     food = {
-      x: Math.round(Math.random()*(w-cellWidth)/cellWidth), 
-      y: Math.round(Math.random()*(h-cellWidth)/cellWidth), 
+      x: Math.round(Math.random()*(w-cellWidth)/cellWidth),
+      y: Math.round(Math.random()*(h-cellWidth)/cellWidth)
     };
   }
-  
+
   function gameLoop() {
     // Get next action to execute
     var o = TwitchPlaysSnake.getNextAction();
@@ -135,9 +146,8 @@ $(document).ready(function() {
 
     // Detect avoided collision with apple
     if(checkFoodCollision(avoidedPos) && !checkFoodCollision(pos)) {
-      // Increase TPS of o.user
-      TwitchPlaysSnake.incrementMaliciousAction(o.user.username, 1);
       EventLogger.appleAvoided(o.user);
+      TwitchPlaysSnake.incrementMaliciousAction(o.user.username, 1);
     }
 
     // Detect wall/snake collisions (game over)
@@ -157,7 +167,6 @@ $(document).ready(function() {
 
     // Restart game if collision took place
     if(collision) {
-      // increase TPS of o.user
       TwitchPlaysSnake.incrementMaliciousAction(o.user.username, 1);
       stopGame();
       return;
@@ -179,36 +188,33 @@ $(document).ready(function() {
     }
 
     if(collisionAvoided) {
-      // TODO: Decrease TPS of o.user
       TwitchPlaysSnake.incrementPositiveAction(o.user.username, 1);
     }
-    
+
     // Code to make the snake eat the food
     // If the new head position matches with that of the food,
     // create a new head instead of moving the tail
+    var tail;
     if(checkFoodCollision(pos)) {
-      // Decrease TPS of o.user
-      // Decrease TPS of all users if no action was submitted
-      TwitchPlaysSnake.incrementPositiveAction(o.user.username, 1);
-      // TODO: need to getting the whole action queue, and decide how to increament the action
       EventLogger.appleCollected(o.user);
-      var tail = {x: pos.x, y: pos.y};
+      TwitchPlaysSnake.incrementPositiveAction(o.user.username, 1);
+      tail = {x: pos.x, y: pos.y};
       score++;
       createFood();
     }
     else {
       // Pop out the tail cell and place it infront of the head cell
-      var tail = snakeArray.pop();
-      tail.x = pos.x; 
+      tail = snakeArray.pop();
+      tail.x = pos.x;
       tail.y = pos.y;
     }
-    
+
     // Put back the tail as the first cell
-    snakeArray.unshift(tail); 
+    snakeArray.unshift(tail);
 
     // Take note of direction change here to avoid race condition w/ user input
     prevDirection = direction;
-    
+
     paintBackground();
     paintSnake();
     paintFood();
@@ -274,7 +280,7 @@ $(document).ready(function() {
     var finalScoreDim  = ctx.measureText(finalScoreText);
     ctx.fillText(finalScoreText, w/2-finalScoreDim.width/2, h/2+50);
   }
-  
+
   function paintCell(x, y, color) {
     if (!color) color = snakeBodyColor;
     ctx.fillStyle = color;
@@ -294,7 +300,7 @@ $(document).ready(function() {
 
     return {x: x, y: y};
   }
-  
+
   function checkSnakeCollision(pos) {
     for(var i = 0; i < snakeArray.length; i++) {
       if(snakeArray[i].x === pos.x && snakeArray[i].y === pos.y) {

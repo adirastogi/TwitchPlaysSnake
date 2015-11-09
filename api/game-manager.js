@@ -7,7 +7,7 @@ var json2csv = require('json2csv'),
 
 var outputDirectory = path.join(__dirname, 'output');
 
-var csvFile, datetime, gameDirectory, gameEvents, summaryFile;
+var csvFile, gameDirectory, gameEvents, summaryFile;
 
 var eventFields     = ['event', 'user', 'value', 'time'],
     eventFieldNames = ['Event', 'User', 'Value', 'Time'];
@@ -51,8 +51,16 @@ function logEvents(events) {
 function endGame(results) {
   validateGameResults(results);
 
-  console.log('[INFO] Game Ended');
+  console.log('[INFO] Game Over');
   gameEvents.push({ event: 'GAME_END', time: results.endTime });
+
+  console.log('[INFO] Final Score: ' + results.score);
+  gameEvents.push({ event: 'FINAL_SCORE', value: results.score, time: results.endTime });
+
+  results.users.forEach(function (user) {
+    console.log('[INFO] Final TPS for ' + user.username + ': ' + user.tps);
+    gameEvents.push({ event: 'FINAL_TPS', user: user.username, value: user.tps, time: results.endTime });
+  });
 
   console.log('[INFO] Writing Summary: ' + summaryFile);
   fs.writeFileSync(summaryFile, generateSummary());
@@ -66,6 +74,8 @@ function endGame(results) {
 
   console.log('[INFO] Clearing Event Cache');
   gameEvents = null;
+  console.log('--------------------------');
+  console.log('[INFO] Ready for next game');
 }
 
 function generateSummary() {
@@ -79,7 +89,7 @@ function generateSummary() {
 function validateEvents(events) {
   if(!Array.isArray(events)) {
     throw new Error('Body must be an array of events');
-  }  
+  }
   events.forEach(function (event) {
     if (!event.event) {
       throw new Error('Event must must contain "event" property');
