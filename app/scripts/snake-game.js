@@ -12,7 +12,7 @@ $(document).ready(function() {
 
   // Colors
   var snakeBodyColor = 'darkcyan';
-  var snakeHeadColor = '#077676';
+  var snakeEyeColor  = 'black';
 
   // Game state
   var cellWidth = 75;
@@ -250,7 +250,8 @@ $(document).ready(function() {
 
   function paintSnakeHead() {
     var headCell = snakeArray[0];
-    paintCell(headCell.x, headCell.y, snakeHeadColor);
+    paintCell(headCell.x, headCell.y, snakeBodyColor);
+    paintCellTriangle(headCell.x, headCell.y);
   }
 
   function paintSnakeBody() {
@@ -258,6 +259,49 @@ $(document).ready(function() {
       var c = snakeArray[i];
       paintCell(c.x, c.y, snakeBodyColor);
     }
+  }
+
+  function paintCell(x, y, color) {
+    if (!color) color = snakeBodyColor;
+    ctx.fillStyle = color;
+    ctx.fillRect(x*cellWidth, y*cellWidth, cellWidth, cellWidth);
+    ctx.strokeStyle = 'white';
+    ctx.strokeRect(x*cellWidth, y*cellWidth, cellWidth, cellWidth);
+  }
+
+  function paintCellTriangle(x, y, color) {
+    if (!color) color  = snakeEyeColor;
+
+    x = x * cellWidth;
+    y = y * cellWidth;
+
+    ctx.fillStyle = color;
+    ctx.beginPath();
+
+    switch (direction) {
+      case 'LEFT':
+        ctx.moveTo(x + (0.25 * cellWidth), y + (0.5 * cellWidth));
+        ctx.lineTo(x + (0.75 * cellWidth), y + (0.25 * cellWidth));
+        ctx.lineTo(x + (0.75 * cellWidth), y + (0.75 * cellWidth));
+        break;
+      case 'RIGHT':
+        ctx.moveTo(x + (0.75 * cellWidth), y + (0.5 * cellWidth));
+        ctx.lineTo(x + (0.25 * cellWidth), y + (0.25 * cellWidth));
+        ctx.lineTo(x + (0.25 * cellWidth), y + (0.75 * cellWidth));
+        break;
+      case 'UP':
+        ctx.moveTo(x + (0.5 * cellWidth), y + (0.25 * cellWidth));
+        ctx.lineTo(x + (0.25 * cellWidth), y + (0.75 * cellWidth));
+        ctx.lineTo(x + (0.75 * cellWidth), y + (0.75 * cellWidth));
+        break;
+      case 'DOWN':
+        ctx.moveTo(x + (0.5 * cellWidth), y + (0.75 * cellWidth));
+        ctx.lineTo(x + (0.25 * cellWidth), y + (0.25 * cellWidth));
+        ctx.lineTo(x + (0.75 * cellWidth), y + (0.25 * cellWidth));
+        break;
+    }
+
+    ctx.fill();
   }
 
   function paintGameOver() {
@@ -280,14 +324,6 @@ $(document).ready(function() {
     var finalScoreText = 'Final Score: ' + score;
     var finalScoreDim  = ctx.measureText(finalScoreText);
     ctx.fillText(finalScoreText, w/2-finalScoreDim.width/2, h/2+50);
-  }
-
-  function paintCell(x, y, color) {
-    if (!color) color = snakeBodyColor;
-    ctx.fillStyle = color;
-    ctx.fillRect(x*cellWidth, y*cellWidth, cellWidth, cellWidth);
-    ctx.strokeStyle = 'white';
-    ctx.strokeRect(x*cellWidth, y*cellWidth, cellWidth, cellWidth);
   }
 
   function getNextPosition(dir) {
