@@ -24,11 +24,16 @@ var TwitchPlaysSnake = (function () {
     'S':     'DOWN'
   };
 
+  // HTML Elements
+  var toggleSubversionBtn = $('#toggleSubversion'),
+      resetPlayerTpsBtn   = $('#resetPlayerTPS');
+
   // boolean to indicate if the troll subversion is enabled
   var trollSubversion = true;
 
-  // setup button click handler
-  $('#resetPlayerTPS').click(resetPlayerTPS);
+  // setup button click handlers
+  resetPlayerTpsBtn.click(resetPlayerTPS);
+  toggleSubversionBtn.click(toggleSubversion);
 
   return {
     getActionMap:             getActionMap,
@@ -51,6 +56,17 @@ var TwitchPlaysSnake = (function () {
     for (i = 0, len = inactiveUsers.length; i < len; i++) {
       inactiveUsers[i].maliciousAction = 0;
       inactiveUsers[i].positiveAction = 0;
+    }
+  }
+
+  function toggleSubversion() {
+    if (trollSubversion) {
+      trollSubversion = false;
+      toggleSubversionBtn.html('Enable Subversion');
+    }
+    else {
+      trollSubversion = true;
+      toggleSubversionBtn.html('Disable Subversion');
     }
   }
 
