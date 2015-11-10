@@ -112,12 +112,32 @@ $(document).ready(function() {
 
   // Create the food now
   function createFood() {
+    var openCells = [];
+
+    // find all open cells
+    for (var x = 0, xCells = w / cellWidth; x < xCells; x++) {
+      for (var y = 0, yCells = h / cellWidth; y < yCells; y++) {
+        var openCell = true;
+        for (var i = 0, len = snakeArray.length; i < len; i++) {
+          if (snakeArray[i].x === x && snakeArray[i].y === y) {
+            openCell = false;
+            break;
+          }
+        }
+        if (openCell) {
+          openCells.push({x: x, y: y});
+        }
+      }
+    }
+
+    // end game if no more open cells
+    if (openCells.length < 1) {
+      stopGame();
+    }
+
     // This will create a cell with x/y between 0-44
-    // Because there are 45(450/10) positions accross the rows and columns
-    food = {
-      x: Math.round(Math.random()*(w-cellWidth)/cellWidth),
-      y: Math.round(Math.random()*(h-cellWidth)/cellWidth)
-    };
+    // Because there are 45(450/10) positions across the rows and columns
+    food = openCells[Math.floor(Math.random() * openCells.length)];
   }
 
   function gameLoop() {
@@ -201,6 +221,7 @@ $(document).ready(function() {
       TwitchPlaysSnake.incrementPositiveAction(o.user.username, 1);
       tail = {x: pos.x, y: pos.y};
       score++;
+      snakeArray.unshift(tail); // Put back the tail as the first cell
       createFood();
     }
     else {
@@ -208,10 +229,8 @@ $(document).ready(function() {
       tail = snakeArray.pop();
       tail.x = pos.x;
       tail.y = pos.y;
+      snakeArray.unshift(tail); // Put back the tail as the first cell
     }
-
-    // Put back the tail as the first cell
-    snakeArray.unshift(tail);
 
     // Take note of direction change here to avoid race condition w/ user input
     prevDirection = direction;
