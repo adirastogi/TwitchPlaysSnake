@@ -236,7 +236,7 @@ var TwitchPlaysSnake = (function () {
     }
   }
 
-  function incrementMaliciousAction(username, num) {
+  function incrementMaliciousAction(username) {
     if (username !== 'SnakeGame') {
       for (var i = 0; i < activeUsers.length; i++) {
         var user = activeUsers[i];
@@ -251,7 +251,7 @@ var TwitchPlaysSnake = (function () {
     }
   }
 
-  function incrementPositiveAction(username, num) {
+  function incrementPositiveAction(username) {
     if (username !== 'SnakeGame') {
       for (var i = 0; i < activeUsers.length; i++) {
         var user = activeUsers[i];

@@ -166,7 +166,7 @@ $(document).ready(function() {
     // Detect avoided collision with apple
     if(checkFoodCollision(avoidedPos) && !checkFoodCollision(pos)) {
       EventLogger.appleAvoided(o.user);
-      TwitchPlaysSnake.incrementMaliciousAction(o.user.username, 1);
+      TwitchPlaysSnake.incrementMaliciousAction(o.user.username);
     }
 
     // Detect wall/snake collisions (game over)
@@ -186,7 +186,7 @@ $(document).ready(function() {
 
     // Restart game if collision took place
     if(collision) {
-      TwitchPlaysSnake.incrementMaliciousAction(o.user.username, 1);
+      TwitchPlaysSnake.incrementMaliciousAction(o.user.username);
       return;
     }
 
@@ -206,7 +206,7 @@ $(document).ready(function() {
     }
 
     if(collisionAvoided) {
-      TwitchPlaysSnake.incrementPositiveAction(o.user.username, 1);
+      TwitchPlaysSnake.incrementPositiveAction(o.user.username);
     }
 
     // Code to make the snake eat the food
@@ -214,7 +214,7 @@ $(document).ready(function() {
     // create a new head instead of moving the tail
     if(checkFoodCollision(pos)) {
       EventLogger.appleCollected(o.user);
-      TwitchPlaysSnake.incrementPositiveAction(o.user.username, 1);
+      TwitchPlaysSnake.incrementPositiveAction(o.user.username);
     }
   }
 
