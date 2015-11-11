@@ -186,7 +186,7 @@ $(document).ready(function() {
 
     // Restart game if collision took place
     if(collision) {
-      TwitchPlaysSnake.incrementMaliciousAction(o.user.username, 3);
+      TwitchPlaysSnake.incrementMaliciousAction(o.user.username, 1);
       return;
     }
 

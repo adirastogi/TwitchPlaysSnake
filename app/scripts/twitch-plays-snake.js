@@ -93,8 +93,8 @@ var TwitchPlaysSnake = (function () {
 
   function activateUser(user) {
     if (!actionMap[user.username]) {
-      user.maliciousAction = 0;
-      user.positiveAction = 0;
+      user.maliciousAction = 1;
+      user.positiveAction = 1;
       user.tps = calculateTPS(user);
       actionMap[user.username] = {user: user};
     }
@@ -241,7 +241,8 @@ var TwitchPlaysSnake = (function () {
       for (var i = 0; i < activeUsers.length; i++) {
         var user = activeUsers[i];
         if (user.username === username) {
-          activeUsers[i].maliciousAction += num;
+          var totalActions = activeUsers[i].maliciousAction + activeUsers[i].positiveAction;
+          activeUsers[i].maliciousAction += 1 + totalActions * 0.1;
           activeUsers[i].tps = Math.round(calculateTPS(activeUsers[i]) * 100) / 100;
           EventLogger.tpsUpdate(user, activeUsers[i].tps);
           return;
@@ -255,7 +256,8 @@ var TwitchPlaysSnake = (function () {
       for (var i = 0; i < activeUsers.length; i++) {
         var user = activeUsers[i];
         if (user.username === username) {
-          activeUsers[i].positiveAction += num;
+          var totalActions = activeUsers[i].maliciousAction + activeUsers[i].positiveAction;
+          activeUsers[i].positiveAction += 1 + totalActions * 0.1;
           activeUsers[i].tps = Math.round(calculateTPS(activeUsers[i]) * 100) / 100;
           EventLogger.tpsUpdate(user, activeUsers[i].tps);
           return;
