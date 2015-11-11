@@ -144,9 +144,10 @@ var TwitchPlaysSnake = (function () {
 
     // now sample from the array using the probabilities
     var cumProb = 0;
+    var threshold = Math.random();
     for (var i = 0; i < probabilities.length; i++) {
       cumProb = cumProb + probabilities[i].probability;
-      if (cumProb > Math.random()) {
+      if (cumProb > threshold) {
         break;
       }
     }
