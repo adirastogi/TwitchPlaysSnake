@@ -141,26 +141,24 @@ $(document).ready(function() {
   }
 
   function gameLoop() {
-    // Get next action to execute
-    var o = TwitchPlaysSnake.getNextAction();
+    evaluateUserActions();
+    executeSelectedAction();
+    EventLogger.sendEvents(); // Send all event logs to the server
+  }
 
-    // Repeat previous action if no action was submitted by users
-    if (!o) o = { user: { username: 'SnakeGame' }, action: direction };
+  function evaluateUserActions() {
+    var actionMap = TwitchPlaysSnake.getActionMap();
+    for (var username of Object.keys(actionMap)) {
+      evaluateUserAction(actionMap[username]);
+    }
+  }
 
+  function evaluateUserAction(o) {
     // If user did not provide input, continue in the same direction
     if (!o.action) o.action = direction;
 
-    // Update chat
-    if (o.user.username !== 'SnakeGame') {
-      TwitchChat.update(o.channel, o.user, o.action);
-    }
-
-    // Set snake direction
-    setDirection(o.action);
-    EventLogger.actionExecuted(o.user, o.action);
-
     // Get coordinates of next snake position
-    var pos = getNextPosition(direction);
+    var pos = getNextPosition(o.action);
 
     // Get coordinates of where snake would have gone w/o user input
     var avoidedPos = getNextPosition(prevDirection);
@@ -188,8 +186,7 @@ $(document).ready(function() {
 
     // Restart game if collision took place
     if(collision) {
-      TwitchPlaysSnake.incrementMaliciousAction(o.user.username, 1);
-      stopGame();
+      TwitchPlaysSnake.incrementMaliciousAction(o.user.username, 3);
       return;
     }
 
@@ -215,10 +212,45 @@ $(document).ready(function() {
     // Code to make the snake eat the food
     // If the new head position matches with that of the food,
     // create a new head instead of moving the tail
-    var tail;
     if(checkFoodCollision(pos)) {
       EventLogger.appleCollected(o.user);
       TwitchPlaysSnake.incrementPositiveAction(o.user.username, 1);
+    }
+  }
+
+  function executeSelectedAction() {
+    // Get next action to execute
+    var o = TwitchPlaysSnake.getNextAction();
+
+    // Repeat previous action if no action was submitted by users
+    if (!o) o = { user: { username: 'SnakeGame' }, action: direction };
+
+    // If user did not provide input, continue in the same direction
+    if (!o.action) o.action = direction;
+
+    // Update chat
+    if (o.user.username !== 'SnakeGame') {
+      TwitchChat.update(o.channel, o.user, o.action);
+    }
+
+    // Set snake direction
+    setDirection(o.action);
+    EventLogger.actionExecuted(o.user, o.action);
+
+    // Get coordinates of next snake position
+    var pos = getNextPosition(direction);
+
+    // Restart game if collision took place
+    if(checkWallCollision(pos) || checkSnakeCollision(pos)) {
+      stopGame();
+      return;
+    }
+
+    // Code to make the snake eat the food
+    // If the new head position matches with that of the food,
+    // create a new head instead of moving the tail
+    var tail;
+    if(checkFoodCollision(pos)) {
       tail = {x: pos.x, y: pos.y};
       score++;
       snakeArray.unshift(tail); // Put back the tail as the first cell
@@ -235,13 +267,14 @@ $(document).ready(function() {
     // Take note of direction change here to avoid race condition w/ user input
     prevDirection = direction;
 
+    paintGame();
+  }
+
+  function paintGame() {
     paintBackground();
     paintSnake();
     paintFood();
     paintScore();
-
-    // Send all event logs to the server
-    EventLogger.sendEvents();
   }
 
   function paintBackground() {
