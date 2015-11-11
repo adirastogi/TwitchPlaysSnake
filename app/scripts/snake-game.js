@@ -16,7 +16,7 @@ $(document).ready(function() {
 
   // Game state
   var cellWidth = 75;
-  var gameLoopPeriod = 3000;
+  var gameLoopPeriod = 2000;
   var direction, prevDirection;
   var food;
   var score;
